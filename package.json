@@ -1,0 +1,38 @@
+{
+  "name": "api-gateway-monorepo",
+  "version": "1.0.0",
+  "description": "Node.js + TypeScript API Gateway Monorepo",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter api-gateway dev",
+    "start": "pnpm --filter api-gateway start",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "pnpm -r type-check",
+    "docker:build": "docker build -t api-gateway .",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker-compose up --build",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.0"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

@@ -1,0 +1,110 @@
+import { Response, NextFunction } from 'express';
+import { ApiResponse, UserRole } from '@monorepo/shared';
+import { AuthenticatedRequest } from './auth.middleware';
+import { logger } from '../utils/logger';
+
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+  viewer: 1,
+  moderator: 2,
+  editor: 3,
+  admin: 4,
+};
+
+export const requireRole = (requiredRole: UserRole) => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    try {
+      const user = req.user;
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const userRoleLevel = ROLE_HIERARCHY[user.role];
+      const requiredRoleLevel = ROLE_HIERARCHY[requiredRole];
+
+      if (userRoleLevel < requiredRoleLevel) {
+        logger.warn(
+          `User ${user.email} (${user.role}) attempt to access ${requiredRole} resource`
+        );
+        res.status(403).json({
+          success: false,
+          data: `Insufficient Permission. Required Role: ${requiredRole}`,
+        } as ApiResponse);
+      }
+
+      logger.debug(
+        `User ${user.email} (${user.role}) authorized for ${requiredRole} resource`
+      );
+      next();
+    } catch (error) {
+      logger.error('Role guard error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
+    }
+  };
+};
+
+export const requireAnyRole = (requiredRoles: UserRole[]) => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    try {
+      const user = req.user;
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const userRoleLevel = ROLE_HIERARCHY[user.role];
+      const hasRequiredRole = requiredRoles.some((role) => {
+        const requiredRoleLevel = ROLE_HIERARCHY[role];
+        return userRoleLevel >= requiredRoleLevel;
+      });
+      if (!hasRequiredRole) {
+        logger.warn(
+          `User ${user.email} (${user.role}) attempted to access resource requiring roles: ${requiredRoles.join(', ')}`
+        );
+        res.status(403).json({
+          success: true,
+          error: `Insufficient permissions. Required roles: ${requiredRoles.join(', ')}`,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      logger.debug(
+        `User ${user.email} (${user.role}) authorized for resource requiring roles: ${requiredRoles.join(', ')}`
+      );
+      next();
+    } catch (error) {
+      logger.error(`Role guard error:`, error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
+    }
+  };
+};
+
+export const requireAdmin = requireRole('admin');
+export const requireEditor = requireRole('editor');
+export const requireModerator = requireRole('moderator');
+export const requireViewer = requireRole('viewer');

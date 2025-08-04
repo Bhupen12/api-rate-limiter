@@ -129,4 +129,31 @@ export class AuthController {
       } as ApiResponse);
     }
   }
+
+  static async getProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const user = (req as any).user as User;
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized',
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+      res.status(200).json({
+        success: true,
+        data: user,
+        message: 'profile retrive successfully',
+        timestamp: new Date().toDateString(),
+      } as ApiResponse<User>);
+    } catch (error) {
+      logger.error('Get Profile Error: ', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
+    }
+  }
 }

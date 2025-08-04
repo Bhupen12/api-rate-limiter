@@ -28,6 +28,7 @@ export interface ServiceConfig {
 export interface User {
   id: string;
   email: string;
+  username: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
@@ -35,12 +36,12 @@ export interface User {
 
 export type UserRole = 'admin' | 'viewer' | 'editor' | 'moderator';
 
-export interface AuthCredentials {
+export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
   user: Omit<User, 'password'>;
   token: string;
   expiresIn: number;

@@ -53,7 +53,7 @@ export class RedisService implements RedisServiceInterface {
   ): Promise<'OK'> {
     try {
       const client = this.client.getClient();
-      let result: 'OK';
+      let result: 'OK' | null;
 
       if (options.ttl) {
         if (options.nx) {
@@ -72,7 +72,7 @@ export class RedisService implements RedisServiceInterface {
           result = await client.set(key, value);
         }
       }
-
+      if (!result) throw new Error('Failed to set value in Redis');
       this.logger.debug('Redis SET operation', { key, ttl: options.ttl });
       return result;
     } catch (error) {
@@ -514,4 +514,29 @@ export class RedisService implements RedisServiceInterface {
   async disconnect(): Promise<void> {
     await this.client.disconnect();
   }
+
+  async quit(): Promise<'OK'> {
+    try {
+      const result = await this.client.getClient().quit();
+      this.logger.info('Redis client quit successfully');
+      return result;
+    } catch (error) {
+      this.logger.error('Redis QUIT error', {
+        error: (error as Error).message,
+      });
+      throw error;
+    }
+  }
 }
+
+// Singleton instance
+let redisServiceInstance: RedisService | null = null;
+
+export const getRedisService = (): RedisService => {
+  if (!redisServiceInstance) {
+    redisServiceInstance = new RedisService();
+  }
+  return redisServiceInstance;
+};
+
+export const redisService = getRedisService();

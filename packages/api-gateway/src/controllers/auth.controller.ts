@@ -112,7 +112,16 @@ export class AuthController {
         expiresIn,
       };
 
-      logger.info(`User ${user.email} logged in successfully`);
+      // Log successful login with rate limit info
+      logger.info('User login successful', {
+        email: user.email,
+        role: user.role,
+        rateLimitInfo: {
+          limit: res.get('X-RateLimit-Limit'),
+          remaining: res.get('X-RateLimit-Remaining'),
+          reset: res.get('X-RateLimit-Reset'),
+        },
+      });
 
       res.status(200).json({
         success: true,
@@ -124,7 +133,7 @@ export class AuthController {
       logger.error('Login error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error',
+        error: 'Internal Server Error',
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }
@@ -132,6 +141,8 @@ export class AuthController {
 
   static async getProfile(req: Request, res: Response): Promise<void> {
     try {
+      // req.user is available from auth middleware
+      // Rate limiting was applied using req.user.id
       const user = (req as any).user as User;
       if (!user) {
         res.status(401).json({
@@ -141,14 +152,26 @@ export class AuthController {
         } as ApiResponse);
         return;
       }
+
+      logger.info('Profile accessed', {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        rateLimitInfo: {
+          limit: res.get('X-RateLimit-Limit'),
+          remaining: res.get('X-RateLimit-Remaining'),
+          reset: res.get('X-RateLimit-Reset'),
+        },
+      });
+
       res.status(200).json({
         success: true,
         data: user,
-        message: 'profile retrive successfully',
-        timestamp: new Date().toDateString(),
-      } as ApiResponse<User>);
+        message: 'Profile retrieved successfully',
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
     } catch (error) {
-      logger.error('Get Profile Error: ', error);
+      logger.error('Get profile error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',

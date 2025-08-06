@@ -1,5 +1,8 @@
 export * from './types';
 export * from './utils';
+export * from './config';
+export * from './clients';
+export * from './services';
 
 export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));

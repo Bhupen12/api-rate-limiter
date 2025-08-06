@@ -1,3 +1,4 @@
+// Common utilities
 export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -28,3 +29,6 @@ export const isValidUrl = (url: string): boolean => {
     return false;
   }
 };
+
+// Auto-export Redis utilities
+export * from './redis-health';

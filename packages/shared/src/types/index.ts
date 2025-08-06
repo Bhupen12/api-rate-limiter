@@ -1,3 +1,4 @@
+// Common types
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -24,7 +25,7 @@ export interface ServiceConfig {
   retries: number;
 }
 
-// user and auth types
+// Auth types
 export interface User {
   id: string;
   email: string;
@@ -58,3 +59,6 @@ export interface JwtPayload {
 export interface AuthRequest extends Request {
   user?: User;
 }
+
+// Redis types
+export * from './redis';

@@ -3,7 +3,7 @@ import {
   acquireToken,
   getBucketInfo,
   acquireTokensBatch,
-} from '../services/rate-limiter';
+} from '../services/rate-limiter.service';
 import { logger } from '../utils/logger';
 import { ApiResponse, AuthRequest, isAuthRequest } from '@monorepo/shared';
 import { getRateLimitConfig } from '../config/rate-limit';

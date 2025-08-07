@@ -6,27 +6,16 @@ import {
 } from '../services/rate-limiter';
 import { logger } from '../utils/logger';
 import { ApiResponse, AuthRequest, isAuthRequest } from '@monorepo/shared';
-
-// Rate limiting configuration interface
-interface RateLimitConfig {
-  capacity?: number;
-  refillRate?: number;
-  keyPrefix?: string;
-  skipSuccessfulRequests?: boolean;
-  skipFailedRequests?: boolean;
-  tokensPerRequest?: number; // Allow consuming multiple tokens per request
-}
-
-// Default rate limiting configuration
-const DEFAULT_CONFIG: Required<Omit<RateLimitConfig, 'keyPrefix'>> &
-  Pick<RateLimitConfig, 'keyPrefix'> = {
-  capacity: 100, // 100 requests
-  refillRate: 10, // 10 requests per second
-  keyPrefix: 'rate_limit',
-  skipSuccessfulRequests: false,
-  skipFailedRequests: false,
-  tokensPerRequest: 1, // 1 token per request by default
-};
+import { getRateLimitConfig } from '../config/rate-limit';
+import { RateLimitConfig } from '../interfaces/rate-limit.interface';
+import {
+  HEADER_API_KEY,
+  HEADER_RATE_LIMIT_LIMIT,
+  HEADER_RATE_LIMIT_REMAINING,
+  HEADER_RATE_LIMIT_RESET,
+  HEADER_RETRY_AFTER,
+} from '../constants/http.constants';
+import { RateLimitKeyType } from '../constants/rate-limit.constants';
 
 /**
  * Rate limiting middleware factory
@@ -35,8 +24,10 @@ const DEFAULT_CONFIG: Required<Omit<RateLimitConfig, 'keyPrefix'>> &
  * @param config - Rate limiting configuration
  * @returns Express middleware function
  */
-export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+export function createRateLimitMiddleware(
+  configOverrides: RateLimitConfig = {}
+) {
+  const finalConfig = getRateLimitConfig(configOverrides);
 
   return async (
     req: AuthRequest,
@@ -45,26 +36,25 @@ export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
   ): Promise<void> => {
     try {
       // Extract identifier from x-api-key header or authenticated user
-      const apiKey = req.headers['x-api-key'] as string;
+      const apiKey = req.headers[HEADER_API_KEY] as string | undefined;
       const user = isAuthRequest(req) ? req.user : undefined;
 
       // Determine the rate limiting key
-      let rateLimitKey: string;
-      let keyType: 'api_key' | 'user_id' | 'ip';
+      let keyType: RateLimitKeyType;
+      let identifier: string;
 
       if (apiKey) {
-        rateLimitKey = `${finalConfig.keyPrefix}:api_key:${apiKey}`;
-        keyType = 'api_key';
+        keyType = RateLimitKeyType.ApiKey;
+        identifier = apiKey;
       } else if (user?.id) {
-        rateLimitKey = `${finalConfig.keyPrefix}:user:${user.id}`;
-        keyType = 'user_id';
+        keyType = RateLimitKeyType.UserId;
+        identifier = String(user.id);
       } else {
-        // Fallback to IP address for unauthenticated requests
-        const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-        rateLimitKey = `${finalConfig.keyPrefix}:ip:${clientIp}`;
-        keyType = 'ip';
+        keyType = RateLimitKeyType.Ip;
+        identifier = req.ip || req.connection.remoteAddress || 'unknown';
       }
 
+      const rateLimitKey = `${finalConfig.keyPrefix}:${keyType}:${identifier}`;
       logger.debug('Rate limiting check', {
         key: rateLimitKey,
         keyType,
@@ -124,12 +114,12 @@ export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
 
         // Set rate limit headers
         res.set({
-          'X-RateLimit-Limit': finalConfig.capacity.toString(),
-          'X-RateLimit-Remaining': bucketInfo.currentTokens.toString(),
-          'X-RateLimit-Reset': new Date(
+          [HEADER_RATE_LIMIT_LIMIT]: finalConfig.capacity.toString(),
+          [HEADER_RATE_LIMIT_REMAINING]: bucketInfo.currentTokens.toString(),
+          [HEADER_RATE_LIMIT_RESET]: new Date(
             Date.now() + bucketInfo.timeUntilNextToken
           ).toISOString(),
-          'Retry-After': retryAfterSeconds.toString(),
+          [HEADER_RETRY_AFTER]: retryAfterSeconds.toString(),
         });
 
         // Send 429 Too Many Requests response
@@ -156,12 +146,12 @@ export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
 
       // Set rate limit headers for successful requests
       res.set({
-        'X-RateLimit-Limit': finalConfig.capacity.toString(),
-        'X-RateLimit-Remaining': Math.max(
+        [HEADER_RATE_LIMIT_LIMIT]: finalConfig.capacity.toString(),
+        [HEADER_RATE_LIMIT_REMAINING]: Math.max(
           0,
           bucketInfo.currentTokens
         ).toString(),
-        'X-RateLimit-Reset': new Date(
+        HEADER_RATE_LIMIT_RESET: new Date(
           Date.now() + bucketInfo.timeUntilNextToken
         ).toISOString(),
       });

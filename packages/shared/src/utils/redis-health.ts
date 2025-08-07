@@ -1,5 +1,3 @@
-// packages/shared/src/utils/redis-health.ts
-
 import { redisService } from '../services/redis.service';
 import { RedisHealthCheck, RedisConnectionStatus } from '../types/redis';
 

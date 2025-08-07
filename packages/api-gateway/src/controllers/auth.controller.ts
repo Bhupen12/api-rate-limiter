@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import {
   ApiResponse,
+  isAuthRequest,
   LoginRequest,
   LoginResponse,
   User,
@@ -143,8 +144,7 @@ export class AuthController {
     try {
       // req.user is available from auth middleware
       // Rate limiting was applied using req.user.id
-      const user = (req as any).user as User;
-      if (!user) {
+      if (!isAuthRequest(req) || !req.user) {
         res.status(401).json({
           success: false,
           error: 'Unauthorized',
@@ -152,6 +152,8 @@ export class AuthController {
         } as ApiResponse);
         return;
       }
+
+      const user = req.user;
 
       logger.info('Profile accessed', {
         userId: user.id,

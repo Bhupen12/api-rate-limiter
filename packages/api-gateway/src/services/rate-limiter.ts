@@ -1,4 +1,5 @@
 import { redisService } from '@monorepo/shared';
+import { logger } from '../utils/logger';
 
 interface BucketState {
   tokens: number;
@@ -75,7 +76,7 @@ export async function acquireToken(
       return false; // Rate limited
     }
   } catch (error) {
-    console.error('Error in leaky bucket rate limiter:', error);
+    logger.error('Error in leaky bucket rate limiter:', error);
 
     // On Redis error, fail open (allow the request) to prevent total service outage
     // In production, you might want to fail closed for security
@@ -140,7 +141,7 @@ export async function getBucketInfo(
       isRateLimited: currentTokens === 0,
     };
   } catch (error) {
-    console.error('Error getting bucket info:', error);
+    logger.error('Error getting bucket info:', error);
     return {
       currentTokens: 0,
       capacity,
@@ -226,7 +227,7 @@ export async function acquireTokensBatch(
       return false;
     }
   } catch (error) {
-    console.error('Error in batch token acquisition:', error);
+    logger.error('Error in batch token acquisition:', error);
     return true; // Fail open
   }
 }

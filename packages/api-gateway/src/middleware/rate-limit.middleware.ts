@@ -5,8 +5,7 @@ import {
   acquireTokensBatch,
 } from '../services/rate-limiter';
 import { logger } from '../utils/logger';
-import { ApiResponse } from '@monorepo/shared';
-import { AuthenticatedRequest } from './auth.middleware';
+import { ApiResponse, AuthRequest } from '@monorepo/shared';
 
 // Rate limiting configuration interface
 interface RateLimitConfig {
@@ -40,7 +39,7 @@ export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
   return async (
-    req: AuthenticatedRequest,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
@@ -227,7 +226,7 @@ export const lenientRateLimitMiddleware = createRateLimitMiddleware({
  */
 export function createRoleBasedRateLimitMiddleware() {
   return async (
-    req: AuthenticatedRequest,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

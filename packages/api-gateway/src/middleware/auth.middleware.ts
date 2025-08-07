@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { ApiResponse, JwtPayload, User } from '@monorepo/shared';
+import { ApiResponse, AuthRequest, JwtPayload, User } from '@monorepo/shared';
 import { logger } from '../utils/logger';
 
 // Mock user data (same as in controller)
@@ -39,15 +39,11 @@ const MOCK_USERS: User[] = [
   },
 ];
 
-export interface AuthenticatedRequest extends Request {
-  user?: User;
-}
-
 /**
  * Middleware to authenticate JWT tokens
  */
 export const authMiddleware = (
-  req: AuthenticatedRequest,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): void => {

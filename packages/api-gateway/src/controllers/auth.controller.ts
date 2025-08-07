@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import {
   ApiResponse,
+  isAuthRequest,
   LoginRequest,
   LoginResponse,
   User,

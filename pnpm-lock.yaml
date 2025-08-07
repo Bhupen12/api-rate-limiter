@@ -97,6 +97,9 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0
     devDependencies:
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.23
       '@types/ioredis':
         specifier: ^5.0.0
         version: 5.0.0

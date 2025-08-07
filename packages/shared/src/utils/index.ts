@@ -30,5 +30,8 @@ export const isValidUrl = (url: string): boolean => {
   }
 };
 
+// Export auth utilities
+export * from './auth';
+
 // Auto-export Redis utilities
 export * from './redis-health';

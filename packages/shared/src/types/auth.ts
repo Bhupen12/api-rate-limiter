@@ -33,3 +33,7 @@ export interface JwtPayload {
 export interface AuthRequest extends Request {
   user?: User;
 }
+
+export function isAuthRequest(req: Request): req is AuthRequest {
+  return 'user' in req;
+}

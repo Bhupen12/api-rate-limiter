@@ -91,7 +91,7 @@ export const authMiddleware = (
       return;
     }
 
-    req.user = user;
+    (req as AuthRequest).user = user;
     logger.debug(`User ${user.email} authenticated successfully`);
     next();
   } catch (error) {

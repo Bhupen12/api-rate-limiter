@@ -5,7 +5,7 @@ import {
   acquireTokensBatch,
 } from '../services/rate-limiter';
 import { logger } from '../utils/logger';
-import { ApiResponse, AuthRequest } from '@monorepo/shared';
+import { ApiResponse, AuthRequest, isAuthRequest } from '@monorepo/shared';
 
 // Rate limiting configuration interface
 interface RateLimitConfig {
@@ -46,7 +46,7 @@ export function createRateLimitMiddleware(config: RateLimitConfig = {}) {
     try {
       // Extract identifier from x-api-key header or authenticated user
       const apiKey = req.headers['x-api-key'] as string;
-      const user = req.user;
+      const user = isAuthRequest(req) ? req.user : undefined;
 
       // Determine the rate limiting key
       let rateLimitKey: string;

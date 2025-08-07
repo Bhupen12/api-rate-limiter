@@ -16,6 +16,7 @@ import {
   HEADER_RETRY_AFTER,
 } from '../constants/http.constants';
 import { RateLimitKeyType } from '../constants/rate-limit.constants';
+import { rateLimitConfigService } from '../services/rate-limit-config.service';
 
 /**
  * Rate limiting middleware factory
@@ -55,6 +56,13 @@ export function createRateLimitMiddleware(
       }
 
       const rateLimitKey = `${finalConfig.keyPrefix}:${keyType}:${identifier}`;
+      // Get dynamic config
+      const config = await rateLimitConfigService.getConfig(rateLimitKey);
+
+      // Use overrides if provided, otherwise use dynamic config
+      const capacity = finalConfig.capacity || config.capacity;
+      const refillRate = finalConfig.refillRate || config.refillRate;
+
       logger.debug('Rate limiting check', {
         key: rateLimitKey,
         keyType,
@@ -70,17 +78,13 @@ export function createRateLimitMiddleware(
 
       if (finalConfig.tokensPerRequest === 1) {
         // Single token acquisition (more efficient)
-        tokenAcquired = await acquireToken(
-          rateLimitKey,
-          finalConfig.capacity,
-          finalConfig.refillRate
-        );
+        tokenAcquired = await acquireToken(rateLimitKey, capacity, refillRate);
       } else {
         // Batch token acquisition for multiple tokens per request
         tokenAcquired = await acquireTokensBatch(
           rateLimitKey,
-          finalConfig.capacity,
-          finalConfig.refillRate,
+          capacity,
+          refillRate,
           finalConfig.tokensPerRequest
         );
       }

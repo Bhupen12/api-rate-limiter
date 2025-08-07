@@ -1,5 +1,6 @@
 import { redisService } from '@monorepo/shared';
 import { logger } from '../utils/logger';
+import { rateLimitConfigService } from './rate-limit-config.service';
 
 interface BucketState {
   tokens: number;
@@ -19,9 +20,14 @@ interface BucketState {
  */
 export async function acquireToken(
   key: string,
-  capacity: number,
-  refillRate: number
+  defaultCapacity?: number,
+  defaultRefillRate?: number
 ): Promise<boolean> {
+  // Get configuration with potential overrides
+  const config = await rateLimitConfigService.getConfig(key);
+  const capacity = defaultCapacity || config.capacity;
+  const refillRate = defaultRefillRate || config.refillRate;
+
   const bucketKey = `leaky_bucket:${key}`;
   const now = Date.now();
 
@@ -102,9 +108,13 @@ export interface BucketInfo {
 
 export async function getBucketInfo(
   key: string,
-  capacity: number,
-  refillRate: number
+  defaultCapacity?: number,
+  defaultRefillRate?: number
 ): Promise<BucketInfo> {
+  const config = await rateLimitConfigService.getConfig(key);
+  const capacity = defaultCapacity || config.capacity;
+  const refillRate = defaultRefillRate || config.refillRate;
+
   const bucketKey = `leaky_bucket:${key}`;
   const now = Date.now();
 
@@ -173,10 +183,14 @@ export async function resetBucket(key: string): Promise<void> {
  */
 export async function acquireTokensBatch(
   key: string,
-  capacity: number,
-  refillRate: number,
+  defaultCapacity: number,
+  defaultRefillRate: number,
   tokensRequested: number
 ): Promise<boolean> {
+  const config = await rateLimitConfigService.getConfig(key);
+  const capacity = defaultCapacity || config.capacity;
+  const refillRate = defaultRefillRate || config.refillRate;
+
   if (tokensRequested > capacity) {
     // Can never fulfill this request
     return false;

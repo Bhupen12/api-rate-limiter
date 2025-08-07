@@ -4,9 +4,9 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
-    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../shared/src/*"]
+      "@monorepo/shared": ["../shared/src/index.ts"],
+      "@monorepo/shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -1,4 +1,8 @@
-import { redisService, redisHealthMonitor } from '@monorepo/shared';
+import {
+  redisService,
+  redisHealthMonitor,
+  RedisHealthCheck,
+} from '@monorepo/shared';
 
 // Example 1: Basic Operations
 async function basicOperationsExample() {
@@ -226,7 +230,7 @@ function periodicHealthMonitoringExample() {
   redisHealthMonitor.startPeriodicHealthCheck(30000);
 
   // Register callback for health updates
-  redisHealthMonitor.onHealthCheck((health) => {
+  redisHealthMonitor.onHealthCheck((health: RedisHealthCheck) => {
     console.log(`Health check: ${health.status} (${health.latency}ms)`);
 
     if (health.status === 'unhealthy') {

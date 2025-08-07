@@ -17,7 +17,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["packages/shared/src/*"]
+      "@monorepo/shared": ["packages/shared/src/index.ts"],
+      "@monorepo/shared/*": ["packages/shared/src/*"]
     }
   },
   "include": ["packages/*/src/**/*"],

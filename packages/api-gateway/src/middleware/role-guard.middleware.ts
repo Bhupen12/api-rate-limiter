@@ -1,6 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { ApiResponse, UserRole } from '@monorepo/shared';
-import { AuthenticatedRequest } from './auth.middleware';
+import { ApiResponse, AuthenticatedRequest, UserRole } from '@monorepo/shared';
 import { logger } from '../utils/logger';
 
 const ROLE_HIERARCHY: Record<UserRole, number> = {

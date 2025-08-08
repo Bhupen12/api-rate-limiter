@@ -1,6 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { ApiResponse, UserRole } from '@monorepo/shared';
-import { AuthenticatedRequest } from './auth.middleware';
+import { ApiResponse, AuthRequest, UserRole } from '@monorepo/shared';
 import { logger } from '../utils/logger';
 
 const ROLE_HIERARCHY: Record<UserRole, number> = {
@@ -11,11 +10,7 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 };
 
 export const requireRole = (requiredRole: UserRole) => {
-  return (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): void => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
     try {
       const user = req.user;
       if (!user) {
@@ -56,11 +51,7 @@ export const requireRole = (requiredRole: UserRole) => {
 };
 
 export const requireAnyRole = (requiredRoles: UserRole[]) => {
-  return (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): void => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
     try {
       const user = req.user;
       if (!user) {

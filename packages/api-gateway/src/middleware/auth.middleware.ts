@@ -4,49 +4,11 @@ import {
   ApiResponse,
   AuthenticatedRequest,
   JwtPayload,
-  User,
 } from '@monorepo/shared';
 import { logger } from '../utils/logger';
+import { MOCK_USERS } from '../constants/auth.constants';
+import { API_RESPONSES } from '../constants';
 
-// Mock user data (same as in controller)
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    email: 'admin@example.com',
-    username: 'admin',
-    role: 'admin',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '2',
-    email: 'viewer@example.com',
-    username: 'viewer',
-    role: 'viewer',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '3',
-    email: 'editor@example.com',
-    username: 'editor',
-    role: 'editor',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '4',
-    email: 'moderator@example.com',
-    username: 'moderator',
-    role: 'moderator',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-];
-
-/**
- * Middleware to authenticate JWT tokens
- */
 export const authMiddleware = (
   req: AuthenticatedRequest,
   res: Response,
@@ -57,7 +19,7 @@ export const authMiddleware = (
     if (!authHeader) {
       res.status(401).json({
         success: false,
-        error: 'Authorization Header Required',
+        error: API_RESPONSES.AUTH_ERRORS.AUTH_HEADER_REQUIRED,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
       return;
@@ -67,7 +29,7 @@ export const authMiddleware = (
     if (!token) {
       res.status(401).json({
         success: false,
-        error: 'Token is required',
+        error: API_RESPONSES.AUTH_ERRORS.TOKEN_REQUIRED,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
       return;
@@ -78,7 +40,7 @@ export const authMiddleware = (
       logger.error('JWT_SECRET environment variable is not set');
       res.status(500).json({
         success: false,
-        error: 'Internal server error',
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
       return;
@@ -90,7 +52,7 @@ export const authMiddleware = (
     if (!user) {
       res.status(401).json({
         success: false,
-        error: 'User not found',
+        error: API_RESPONSES.USER_ERRORS.USER_NOT_FOUND,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
       return;
@@ -104,7 +66,7 @@ export const authMiddleware = (
       logger.error('Invalid JWT token:', error.message);
       res.status(500).json({
         success: false,
-        error: 'Invalid token',
+        error: API_RESPONSES.AUTH_ERRORS.INVALID_TOKEN,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }
@@ -113,7 +75,7 @@ export const authMiddleware = (
       logger.error(`JWT has been Expired`, error.message);
       res.status(500).json({
         success: false,
-        error: 'Token expired',
+        error: API_RESPONSES.AUTH_ERRORS.TOKEN_EXPIRED,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }
@@ -121,7 +83,7 @@ export const authMiddleware = (
     logger.error('Auth middleware error:', error);
     res.status(500).json({
       success: false,
-      error: 'Internal Server Error',
+      error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
       timestamp: new Date().toISOString(),
     } as ApiResponse);
   }

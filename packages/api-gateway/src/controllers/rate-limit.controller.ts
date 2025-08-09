@@ -51,7 +51,7 @@ export class RateLimitController {
       const parsed = RateLimitConfigSchema.safeParse(req.body);
 
       if (!parsed.success) {
-        const errors = parsed.error.errors
+        const errors = parsed.error.issues
           .map((e) => `${e.path.join('.') || 'body'}: ${e.message}`)
           .join('; ');
         res.status(400).json({

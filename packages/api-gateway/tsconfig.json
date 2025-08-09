@@ -7,7 +7,11 @@
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/src/*"]
-    }
+    },
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ]
   },
   "include": ["src/**/*"],
   "references": [

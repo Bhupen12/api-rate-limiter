@@ -1,14 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { ApiResponse, UserRole } from '@monorepo/shared';
-import { AuthenticatedRequest } from './auth.middleware';
+import { ApiResponse, AuthenticatedRequest, UserRole } from '@monorepo/shared';
 import { logger } from '../utils/logger';
-
-const ROLE_HIERARCHY: Record<UserRole, number> = {
-  viewer: 1,
-  moderator: 2,
-  editor: 3,
-  admin: 4,
-};
+import { API_RESPONSES } from '../constants';
+import { ROLE_HIERARCHY } from '../constants/role.constants';
 
 export const requireRole = (requiredRole: UserRole) => {
   return (
@@ -21,7 +15,7 @@ export const requireRole = (requiredRole: UserRole) => {
       if (!user) {
         res.status(401).json({
           success: false,
-          error: 'Authentication required',
+          error: API_RESPONSES.AUTH_ERRORS.AUTHENTICATION_REQUIRED,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -48,7 +42,7 @@ export const requireRole = (requiredRole: UserRole) => {
       logger.error('Role guard error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error',
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }
@@ -66,7 +60,7 @@ export const requireAnyRole = (requiredRoles: UserRole[]) => {
       if (!user) {
         res.status(401).json({
           success: false,
-          error: 'Authentication required',
+          error: API_RESPONSES.AUTH_ERRORS.AUTHENTICATION_REQUIRED,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -97,7 +91,7 @@ export const requireAnyRole = (requiredRoles: UserRole[]) => {
       logger.error(`Role guard error:`, error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error',
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }

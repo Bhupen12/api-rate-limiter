@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
+import { API_RESPONSES } from '../constants';
 
 export class HealthController {
   public check = async (req: Request, res: Response): Promise<void> => {
@@ -18,7 +19,7 @@ export class HealthController {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: 'Health check failed',
+        error: API_RESPONSES.SYSTEM_ERRORS.HEALTH_CHECK_FAILED,
       });
     }
   };

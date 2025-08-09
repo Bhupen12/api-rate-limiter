@@ -7,48 +7,8 @@ import {
   User,
 } from '@monorepo/shared';
 import { logger } from '../utils/logger';
-
-const MOCK_USER: User[] = [
-  {
-    id: '1',
-    email: 'admin@example.com',
-    username: 'admin',
-    role: 'admin',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '2',
-    email: 'viewer@example.com',
-    username: 'viewer',
-    role: 'viewer',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '3',
-    email: 'editor@example.com',
-    username: 'editor',
-    role: 'editor',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-  {
-    id: '4',
-    email: 'moderator@example.com',
-    username: 'moderator',
-    role: 'moderator',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  },
-];
-
-const MOCK_PASSWORDS: Record<string, string> = {
-  'admin@example.com': 'admin123',
-  'viewer@example.com': 'viewer123',
-  'editor@example.com': 'editor123',
-  'moderator@example.com': 'moderator123',
-};
+import { MOCK_PASSWORDS, MOCK_USERS } from '../constants/auth.constants';
+import { API_RESPONSES } from '../constants';
 
 export class AuthController {
   static async login(req: Request, res: Response): Promise<void> {
@@ -58,17 +18,17 @@ export class AuthController {
       if (!email || !password) {
         res.status(400).json({
           success: false,
-          error: 'Email and Password are required',
+          error: API_RESPONSES.VALIDATION_ERRORS.EMAIL_PASSWORD_REQUIRED,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
       }
 
-      const user = MOCK_USER.find((u) => u.email === email);
+      const user = MOCK_USERS.find((u) => u.email === email);
       if (!user) {
         res.status(401).json({
           success: false,
-          error: 'Invalid Credentials',
+          error: API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -78,7 +38,7 @@ export class AuthController {
       if (password !== expectedPassword) {
         res.status(401).json({
           success: false,
-          error: 'Invalid Credentials',
+          error: API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -89,7 +49,7 @@ export class AuthController {
         logger.error('JWT_SECRET environment variable is not set');
         res.status(500).json({
           success: false,
-          error: 'Internal Server Error',
+          error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -117,14 +77,14 @@ export class AuthController {
       res.status(200).json({
         success: true,
         data: response,
-        message: 'Login Successful',
+        message: API_RESPONSES.SUCCESS_MESSAGES.LOGIN_SUCCESS,
         timestamp: new Date().toISOString(),
       } as ApiResponse<LoginResponse>);
     } catch (error) {
       logger.error('Login error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error',
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }
@@ -136,7 +96,7 @@ export class AuthController {
       if (!user) {
         res.status(401).json({
           success: false,
-          error: 'Unauthorized',
+          error: API_RESPONSES.AUTH_ERRORS.UNAUTHORIZED,
           timestamp: new Date().toISOString(),
         } as ApiResponse);
         return;
@@ -144,14 +104,14 @@ export class AuthController {
       res.status(200).json({
         success: true,
         data: user,
-        message: 'profile retrive successfully',
+        message: API_RESPONSES.SUCCESS_MESSAGES.PROFILE_RETRIEVED,
         timestamp: new Date().toDateString(),
       } as ApiResponse<User>);
     } catch (error) {
       logger.error('Get Profile Error: ', error);
       res.status(500).json({
         success: false,
-        error: 'Internal Server Error',
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
     }

@@ -4,4 +4,6 @@ export const AUTH_ERRORS = {
   TOKEN_REQUIRED: 'Token is required',
   INVALID_TOKEN: 'Invalid token',
   TOKEN_EXPIRED: 'Token expired',
+  INVALID_CREDENTIALS: 'Invalid credentials',
+  UNAUTHORIZED: 'Unauthorized',
 };

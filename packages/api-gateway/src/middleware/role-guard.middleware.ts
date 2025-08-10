@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { ApiResponse, AuthenticatedRequest, UserRole } from '@monorepo/shared';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
 import { ROLE_HIERARCHY } from '../constants/role.constants';
 

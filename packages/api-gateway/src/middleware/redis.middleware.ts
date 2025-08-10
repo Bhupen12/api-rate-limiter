@@ -1,6 +1,6 @@
 import { RequestHandler, Request, Response, NextFunction } from 'express';
 import Redis, { RedisOptions } from 'ioredis';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.utils';
 
 class RedisConnection {
   private static instance: Redis;

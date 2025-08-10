@@ -5,7 +5,7 @@ import {
   AuthenticatedRequest,
   JwtPayload,
 } from '@monorepo/shared';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.utils';
 import { MOCK_USERS } from '../constants/auth.constants';
 import { API_RESPONSES } from '../constants';
 

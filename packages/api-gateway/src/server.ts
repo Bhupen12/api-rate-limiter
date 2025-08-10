@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { createApp } from './app';
-import { logger } from './utils/logger';
+import { logger } from './utils/logger.utils';
 import { RedisConnection } from './middleware/redis.middleware';
 
 dotenv.config();

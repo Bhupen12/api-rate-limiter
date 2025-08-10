@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.utils';
 
 const CONFIG_KEY = 'rl:config';
 

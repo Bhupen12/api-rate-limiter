@@ -1,4 +1,3 @@
-// packages/api-gateway/src/validators/rate-limit.validator.ts
 import { z } from 'zod';
 
 export const RateLimitConfigSchema = z.object({

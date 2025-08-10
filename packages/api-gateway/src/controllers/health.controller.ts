@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
 
 export class HealthController {

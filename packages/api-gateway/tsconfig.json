@@ -7,9 +7,9 @@
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/src/*"]
-    }
+    },
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/types/**/*.d.ts"],
   "references": [
     {
       "path": "../shared"

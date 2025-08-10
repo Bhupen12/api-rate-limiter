@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { createApp } from './app';
-import { logger } from './utils/logger';
+import { logger } from './utils/logger.utils';
+import { RedisConnection } from './middleware/redis.middleware';
 
-// Load environment variables
 dotenv.config();
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -10,6 +10,14 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 async function startServer(): Promise<void> {
   try {
+    try {
+      await RedisConnection.getClient();
+      logger.info('Redis initialized at startup');
+    } catch (err) {
+      logger.error('Failed to initialize Redis at startup, exiting', err);
+      process.exit(1);
+    }
+
     const app = await createApp();
 
     const server = app.listen(PORT, HOST, () => {

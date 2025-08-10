@@ -1,7 +1,11 @@
 import type { Redis } from 'ioredis';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    redis: Redis;
+declare global {
+  namespace Express {
+    interface Request {
+      redis: Redis;
+    }
   }
 }
+
+export {};

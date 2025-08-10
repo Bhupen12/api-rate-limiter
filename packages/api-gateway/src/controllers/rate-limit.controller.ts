@@ -1,24 +1,12 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
 import type { Redis } from 'ioredis';
 import { logger } from '../utils/logger';
+import {
+  RateLimitConfig,
+  RateLimitConfigSchema,
+} from '../validators/rate-limit.validator';
 
 const CONFIG_KEY = 'rl:config';
-
-// zod schema
-const RateLimitConfigSchema = z.object({
-  apiKey: z.string().min(1, { message: 'API key is required' }),
-  capacity: z
-    .number()
-    .int({ message: 'Capacity must be an integer' })
-    .positive({ message: 'Capacity must be > 0' }),
-  refillRate: z
-    .number({ error: 'Refill rate must be a number' })
-    .positive({ message: 'Refill rate must be > 0' }),
-});
-
-// types
-type RateLimitConfig = z.infer<typeof RateLimitConfigSchema>;
 
 interface ApiResponse<T = any> {
   success: boolean;

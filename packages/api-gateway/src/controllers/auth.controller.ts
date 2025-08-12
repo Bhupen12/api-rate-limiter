@@ -7,8 +7,9 @@ import {
   User,
 } from '@monorepo/shared';
 import { logger } from '../utils/logger.utils';
-import { MOCK_PASSWORDS, MOCK_USERS } from '../constants/auth.constants';
 import { API_RESPONSES } from '../constants';
+import { UserService } from '../services/user.service';
+import { RoleService } from 'src/services/role.service';
 
 export class AuthController {
   static async login(req: Request, res: Response): Promise<void> {
@@ -24,7 +25,7 @@ export class AuthController {
         return;
       }
 
-      const user = MOCK_USERS.find((u) => u.email === email);
+      const user = await UserService.findByEmail(email);
       if (!user) {
         res.status(401).json({
           success: false,
@@ -34,8 +35,11 @@ export class AuthController {
         return;
       }
 
-      const expectedPassword = MOCK_PASSWORDS[email];
-      if (password !== expectedPassword) {
+      const isPasswordValid = await UserService.verifyPassword(
+        password,
+        user.passwordHash
+      );
+      if (!isPasswordValid) {
         res.status(401).json({
           success: false,
           error: API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS,
@@ -82,6 +86,68 @@ export class AuthController {
       } as ApiResponse<LoginResponse>);
     } catch (error) {
       logger.error('Login error:', error);
+      res.status(500).json({
+        success: false,
+        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
+    }
+  }
+
+  static async signup(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password, username, role } = req.body;
+
+      if (!email || !password || !username) {
+        res.status(400).json({
+          success: false,
+          error: API_RESPONSES.VALIDATION_ERRORS.INVALID_SIGNUP_DATA,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const existingUser = await UserService.findByEmail(email);
+      if (existingUser) {
+        res.status(400).json({
+          success: false,
+          error: API_RESPONSES.USER_ERRORS.EMAIL_ALREADY_EXISTS,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const viewerRole = await RoleService.findRoleByName(role || 'viewer');
+      if (!viewerRole) {
+        logger.error('Viewer role not found');
+        res.status(500).json({
+          success: false,
+          error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const newUser = await UserService.createUser({
+        email,
+        password,
+        username,
+        roleId: viewerRole.id,
+        isActive: true,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: newUser.id,
+          email: newUser.email,
+          username: newUser.username,
+        },
+        message: API_RESPONSES.SUCCESS_MESSAGES.SIGNUP_SUCCESS,
+        timestamp: new Date().toISOString(),
+      } as ApiResponse);
+    } catch (error) {
+      logger.error('Signup error:', error);
       res.status(500).json({
         success: false,
         error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,

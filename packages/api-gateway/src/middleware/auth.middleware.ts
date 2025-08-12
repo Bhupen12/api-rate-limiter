@@ -6,14 +6,14 @@ import {
   JwtPayload,
 } from '@monorepo/shared';
 import { logger } from '../utils/logger.utils';
-import { MOCK_USERS } from '../constants/auth.constants';
 import { API_RESPONSES } from '../constants';
+import { UserService } from '../services/user.service';
 
-export const authMiddleware = (
+export const authMiddleware = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -48,7 +48,7 @@ export const authMiddleware = (
 
     const decode = jwt.verify(token, jwtSecret) as JwtPayload;
 
-    const user = MOCK_USERS.find((u) => u.id === decode.userId);
+    const user = await UserService.findByEmail(decode.email);
     if (!user) {
       res.status(401).json({
         success: false,

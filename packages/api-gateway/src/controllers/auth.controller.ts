@@ -9,7 +9,7 @@ import {
 import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
 import { UserService } from '../services/user.service';
-import { RoleService } from 'src/services/role.service';
+import { RoleService } from '../services/role.service';
 
 export class AuthController {
   static async login(req: Request, res: Response): Promise<void> {

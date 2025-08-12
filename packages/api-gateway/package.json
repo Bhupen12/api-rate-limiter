@@ -7,6 +7,7 @@
     "build": "tsc --build",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
+    "debug": "node --inspect -r tsx/cjs src/server.ts",
     "clean": "rm -rf dist *.tsbuildinfo",
     "type-check": "tsc --noEmit",
     "generate": "drizzle-kit generate",

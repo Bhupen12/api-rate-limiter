@@ -11,6 +11,7 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 const db = drizzle(pool);
@@ -18,8 +19,9 @@ const db = drizzle(pool);
 async function main() {
   console.log('Migration started');
   try {
-    await pool.query('SET search_path TO public');
-    await migrate(db, { migrationsFolder: 'drizzle' });
+    await migrate(db, {
+      migrationsFolder: './drizzle',
+    });
     console.log('Migration completed');
   } catch (error) {
     console.error('Migration failed:', error);

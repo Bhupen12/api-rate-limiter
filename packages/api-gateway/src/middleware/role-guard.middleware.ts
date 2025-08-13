@@ -2,14 +2,14 @@ import { Response, NextFunction } from 'express';
 import { ApiResponse, AuthenticatedRequest, UserRole } from '@monorepo/shared';
 import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
-import { ROLE_HIERARCHY } from '../constants/role.constants';
+import { RoleService } from '../services/role.service';
 
 export const requireRole = (requiredRole: UserRole) => {
-  return (
+  return async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
-  ): void => {
+  ): Promise<void> => {
     try {
       const user = req.user;
       if (!user) {
@@ -21,17 +21,32 @@ export const requireRole = (requiredRole: UserRole) => {
         return;
       }
 
-      const userRoleLevel = ROLE_HIERARCHY[user.role];
-      const requiredRoleLevel = ROLE_HIERARCHY[requiredRole];
+      const [userRole, requiredRoleObj] = await Promise.all([
+        RoleService.findRoleByName(user.role),
+        RoleService.findRoleByName(requiredRole),
+      ]);
+      if (!userRole || !requiredRoleObj) {
+        res.status(500).json({
+          success: false,
+          error: API_RESPONSES.USER_ERRORS.ROLE_NOT_FOUND,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const userRoleLevel = userRole.hierarchyLevel;
+      const requiredRoleLevel = requiredRoleObj.hierarchyLevel;
 
       if (userRoleLevel < requiredRoleLevel) {
         logger.warn(
-          `User ${user.email} (${user.role}) attempt to access ${requiredRole} resource`
+          `User ${user.email} (${user.role}) attempted to access ${requiredRole} resource`
         );
         res.status(403).json({
           success: false,
-          data: `Insufficient Permission. Required Role: ${requiredRole}`,
+          error: `Insufficient permission. Required role: ${requiredRole}`,
+          timestamp: new Date().toISOString(),
         } as ApiResponse);
+        return;
       }
 
       logger.debug(
@@ -50,11 +65,11 @@ export const requireRole = (requiredRole: UserRole) => {
 };
 
 export const requireAnyRole = (requiredRoles: UserRole[]) => {
-  return (
+  return async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
-  ): void => {
+  ): Promise<void> => {
     try {
       const user = req.user;
       if (!user) {
@@ -66,17 +81,33 @@ export const requireAnyRole = (requiredRoles: UserRole[]) => {
         return;
       }
 
-      const userRoleLevel = ROLE_HIERARCHY[user.role];
-      const hasRequiredRole = requiredRoles.some((role) => {
-        const requiredRoleLevel = ROLE_HIERARCHY[role];
-        return userRoleLevel >= requiredRoleLevel;
-      });
-      if (!hasRequiredRole) {
+      const [userRole, requiredRoleObjects] = await Promise.all([
+        RoleService.findRoleByName(user.role),
+        Promise.all(
+          requiredRoles.map((role) => RoleService.findRoleByName(role))
+        ),
+      ]);
+
+      if (!userRole || requiredRoleObjects.some((r) => !r)) {
+        res.status(500).json({
+          success: false,
+          error: API_RESPONSES.USER_ERRORS.ROLE_NOT_FOUND,
+          timestamp: new Date().toISOString(),
+        } as ApiResponse);
+        return;
+      }
+
+      const userRoleLevel = userRole.hierarchyLevel;
+      const minRequiredLevel = Math.min(
+        ...requiredRoleObjects.map((r) => r!.hierarchyLevel)
+      );
+
+      if (userRoleLevel < minRequiredLevel) {
         logger.warn(
           `User ${user.email} (${user.role}) attempted to access resource requiring roles: ${requiredRoles.join(', ')}`
         );
         res.status(403).json({
-          success: true,
+          success: false,
           error: `Insufficient permissions. Required roles: ${requiredRoles.join(', ')}`,
           timestamp: new Date().toISOString(),
         } as ApiResponse);

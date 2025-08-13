@@ -36,7 +36,7 @@ export const authMiddleware = async (
       return;
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env.JWT_SECRET || 'nsbdyubsfdyuagfa';
     if (!jwtSecret) {
       logger.error('JWT_SECRET environment variable is not set');
       res.status(500).json({

@@ -3,11 +3,11 @@ import { Pool } from 'pg';
 import * as schema from './schema';
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: 'localhost',
+  port: 5433,
+  user: 'postgres',
+  password: '0000',
+  database: 'api_gateway',
 });
 
 export const db = drizzle(pool, { schema });

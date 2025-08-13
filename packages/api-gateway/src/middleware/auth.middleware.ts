@@ -8,6 +8,7 @@ import {
 import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
 import { UserService } from '../services/user.service';
+import { toPublicUserDTO } from '../services/mapper/user.mapper';
 
 export const authMiddleware = async (
   req: AuthenticatedRequest,
@@ -58,26 +59,28 @@ export const authMiddleware = async (
       return;
     }
 
-    req.user = user;
+    req.user = toPublicUserDTO(user); // 👈 Safe mapping
     logger.debug(`User ${user.email} authenticated successfully`);
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       logger.error('Invalid JWT token:', error.message);
-      res.status(500).json({
+      res.status(401).json({
         success: false,
         error: API_RESPONSES.AUTH_ERRORS.INVALID_TOKEN,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
+      return;
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      logger.error(`JWT has been Expired`, error.message);
-      res.status(500).json({
+      logger.error(`JWT has been expired`, error.message);
+      res.status(401).json({
         success: false,
         error: API_RESPONSES.AUTH_ERRORS.TOKEN_EXPIRED,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
+      return;
     }
 
     logger.error('Auth middleware error:', error);

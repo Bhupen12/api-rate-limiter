@@ -1,45 +1,52 @@
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import { db } from '../db';
-import { users, type NewUser } from '../db/schema/users';
-import { logger } from '../utils/logger.utils';
+import { users } from '../db/schema/users';
+import { roles } from '../db/schema/roles';
 
 export class UserService {
   static async findByEmail(email: string) {
-    try {
-      const user = await db.query.users.findFirst({
-        where: eq(users?.email, email),
-        with: {
-          role: true,
-        },
-      });
-      return user;
-    } catch (error) {
-      logger.error('Error finding user by email:', error);
-      throw error;
-    }
+    const result = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        username: users.username,
+        passwordHash: users.passwordHash,
+        roleId: users.roleId,
+        lastLoginAt: users.lastLoginAt,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        isActive: users.isActive,
+        role: roles.name,
+      })
+      .from(users)
+      .leftJoin(roles, eq(users.roleId, roles.id))
+      .where(eq(users.email, email))
+      .limit(1);
+
+    return result[0] || null;
   }
 
-  static async createUser(
-    userData: Omit<NewUser, 'passwordHash'> & { password: string }
-  ) {
-    try {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const newUser = await db
-        .insert(users)
-        .values({
-          ...userData,
-          passwordHash: hashedPassword,
-        })
-        .returning();
-      return newUser[0];
-    } catch (error) {
-      logger.error('Error creating user:', error);
-      throw error;
-    }
+  static async createUser(data: {
+    email: string;
+    username: string;
+    password: string;
+    roleId: string;
+  }) {
+    const hash = await bcrypt.hash(data.password, 10);
+    const [user] = await db
+      .insert(users)
+      .values({
+        email: data.email,
+        username: data.username,
+        passwordHash: hash,
+        roleId: data.roleId,
+      })
+      .returning();
+    return user;
   }
 
-  static async verifyPassword(password: string, hashedPassword: string) {
-    return bcrypt.compare(password, hashedPassword);
+  static async verifyPassword(password: string, hash: string) {
+    return bcrypt.compare(password, hash);
   }
 }

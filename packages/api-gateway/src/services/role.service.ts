@@ -1,19 +1,15 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { roles } from '../db/schema/roles';
-import { logger } from '../utils/logger.utils';
 import { UserRole } from '@monorepo/shared';
 
 export class RoleService {
-  static async findRoleByName(roleName: UserRole) {
-    try {
-      const role = await db.query.roles.findFirst({
-        where: eq(roles.name, roleName),
-      });
-      return role;
-    } catch (error) {
-      logger.error('Error finding role by name:', error);
-      throw error;
-    }
+  static async findRoleByName(name: UserRole) {
+    const role = await db
+      .select()
+      .from(roles)
+      .where(eq(roles.name, name))
+      .limit(1);
+    return role[0] || null;
   }
 }

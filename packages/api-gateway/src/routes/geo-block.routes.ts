@@ -13,17 +13,17 @@ router.post(
 );
 
 router.delete(
-  '/whitelist/ip:ip',
+  '/whitelist/ip/:ip',
   requireAdmin,
   GeoBlockController.removeFromIpWhiteList
 );
 router.delete(
-  '/blacklist/ip:ip',
+  '/blacklist/ip/:ip',
   requireAdmin,
   GeoBlockController.removeFromIpBlacklist
 );
 router.delete(
-  '/blocklist/country:countryCode',
+  '/blocklist/country/:countryCode',
   requireAdmin,
   GeoBlockController.removeFromCountryBlocklist
 );

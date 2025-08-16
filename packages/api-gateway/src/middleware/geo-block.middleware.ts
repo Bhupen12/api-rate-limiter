@@ -35,7 +35,7 @@ export const geoBlockMiddleware = async (
     const geo = geoip.lookup(clientIp);
     if (geo && geo.country) {
       const isCountryBlocked = await redis.sismember(
-        'gro:blocklist:countries',
+        'geo:blocklist:countries',
         geo.country
       );
       if (isCountryBlocked) {

@@ -9,6 +9,7 @@ import { logger } from '../utils/logger.utils';
 import { API_RESPONSES } from '../constants';
 import { UserService } from '../services/user.service';
 import { toPublicUserDTO } from '../services/mapper/user.mapper';
+import { config } from '../config';
 
 export const authMiddleware = async (
   req: AuthenticatedRequest,
@@ -36,7 +37,7 @@ export const authMiddleware = async (
       return;
     }
 
-    const jwtSecret = process.env.JWT_SECRET || 'nsbdyubsfdyuagfa';
+    const jwtSecret = config.server.jwt;
     if (!jwtSecret) {
       logger.error('JWT_SECRET environment variable is not set');
       res.status(500).json({

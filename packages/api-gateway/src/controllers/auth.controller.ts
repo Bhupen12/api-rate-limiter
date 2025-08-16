@@ -12,6 +12,7 @@ import type {
 } from '@monorepo/shared';
 import { failure, success } from '../utils/response.utils';
 import { API_RESPONSES } from '../constants';
+import { config } from '../config';
 
 export class AuthController {
   static async signup(req: Request, res: Response) {
@@ -59,7 +60,7 @@ export class AuthController {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
-      'nsbdyubsfdyuagfa',
+      config.server.jwt,
       { expiresIn: '1d' }
     );
 

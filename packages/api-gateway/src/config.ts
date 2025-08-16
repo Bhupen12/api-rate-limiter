@@ -13,9 +13,11 @@ export const config = {
     user: process.env.DB_USER!,
     password: process.env.DB_PASSWORD!,
     name: process.env.DB_NAME!,
+    ssl: process.env.DB_SSL!,
   },
   server: {
     port: parseInt(process.env.PORT || '3000', 10),
     host: process.env.HOST || 'localhost',
+    jwt: process.env.JWT_SECRET!,
   },
 };

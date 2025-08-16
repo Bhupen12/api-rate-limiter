@@ -15,6 +15,9 @@
     "docker:build": "docker build -t api-gateway .",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
     "docker:prod": "docker-compose up --build",
+    "db:generate": "pnpm --filter api-gateway generate",
+    "db:migrate": "pnpm --filter api-gateway migrate",
+    "db:studio": "pnpm --filter api-gateway drizzle-kit studio",
     "prepare": "husky install"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { ApiResponse } from '@monorepo/shared';
 import { Response } from 'express';
 
 export function success<T>(res: Response, data: T, message?: string) {
@@ -6,7 +7,7 @@ export function success<T>(res: Response, data: T, message?: string) {
     data,
     message,
     timestamp: new Date().toISOString(),
-  });
+  } as ApiResponse);
 }
 
 export function failure(res: Response, status: number, error: string) {
@@ -14,5 +15,5 @@ export function failure(res: Response, status: number, error: string) {
     success: false,
     error,
     timestamp: new Date().toISOString(),
-  });
+  } as ApiResponse);
 }

@@ -6,14 +6,16 @@ import {
   JwtPayload,
 } from '@monorepo/shared';
 import { logger } from '../utils/logger.utils';
-import { MOCK_USERS } from '../constants/auth.constants';
 import { API_RESPONSES } from '../constants';
+import { UserService } from '../services/user.service';
+import { toPublicUserDTO } from '../services/mapper/user.mapper';
+import { config } from '../config';
 
-export const authMiddleware = (
+export const authMiddleware = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -35,7 +37,7 @@ export const authMiddleware = (
       return;
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = config.server.jwt;
     if (!jwtSecret) {
       logger.error('JWT_SECRET environment variable is not set');
       res.status(500).json({
@@ -48,7 +50,7 @@ export const authMiddleware = (
 
     const decode = jwt.verify(token, jwtSecret) as JwtPayload;
 
-    const user = MOCK_USERS.find((u) => u.id === decode.userId);
+    const user = await UserService.findByEmail(decode.email);
     if (!user) {
       res.status(401).json({
         success: false,
@@ -58,26 +60,28 @@ export const authMiddleware = (
       return;
     }
 
-    req.user = user;
+    req.user = toPublicUserDTO(user); // 👈 Safe mapping
     logger.debug(`User ${user.email} authenticated successfully`);
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       logger.error('Invalid JWT token:', error.message);
-      res.status(500).json({
+      res.status(401).json({
         success: false,
         error: API_RESPONSES.AUTH_ERRORS.INVALID_TOKEN,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
+      return;
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      logger.error(`JWT has been Expired`, error.message);
-      res.status(500).json({
+      logger.error(`JWT has been expired`, error.message);
+      res.status(401).json({
         success: false,
         error: API_RESPONSES.AUTH_ERRORS.TOKEN_EXPIRED,
         timestamp: new Date().toISOString(),
       } as ApiResponse);
+      return;
     }
 
     logger.error('Auth middleware error:', error);

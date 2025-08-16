@@ -24,5 +24,9 @@ export interface ServiceConfig {
   retries: number;
 }
 
-// user and auth types
-export * from './auth.type';
+// common types
+export * from './common';
+
+// DTOs
+export * from './dto/auth.dto';
+export * from './dto/user.dto';

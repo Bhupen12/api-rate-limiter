@@ -1,119 +1,93 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import {
-  ApiResponse,
-  LoginRequest,
-  LoginResponse,
-  User,
+import { UserService } from '../services/user.service';
+import { RoleService } from '../services/role.service';
+import { toPublicUserDTO } from '../services/mapper/user.mapper';
+import type {
+  AuthenticatedRequest,
+  LoginRequestDTO,
+  LoginResponseDTO,
+  SignupRequestDTO,
+  UserDTO,
 } from '@monorepo/shared';
-import { logger } from '../utils/logger.utils';
-import { MOCK_PASSWORDS, MOCK_USERS } from '../constants/auth.constants';
+import { failure, success } from '../utils/response.utils';
 import { API_RESPONSES } from '../constants';
+import { config } from '../config';
 
 export class AuthController {
-  static async login(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password }: LoginRequest = req.body;
+  static async signup(req: Request, res: Response) {
+    const { email, password, username, role }: SignupRequestDTO = req.body;
 
-      if (!email || !password) {
-        res.status(400).json({
-          success: false,
-          error: API_RESPONSES.VALIDATION_ERRORS.EMAIL_PASSWORD_REQUIRED,
-          timestamp: new Date().toISOString(),
-        } as ApiResponse);
-        return;
-      }
-
-      const user = MOCK_USERS.find((u) => u.email === email);
-      if (!user) {
-        res.status(401).json({
-          success: false,
-          error: API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS,
-          timestamp: new Date().toISOString(),
-        } as ApiResponse);
-        return;
-      }
-
-      const expectedPassword = MOCK_PASSWORDS[email];
-      if (password !== expectedPassword) {
-        res.status(401).json({
-          success: false,
-          error: API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS,
-          timestamp: new Date().toISOString(),
-        } as ApiResponse);
-        return;
-      }
-
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        logger.error('JWT_SECRET environment variable is not set');
-        res.status(500).json({
-          success: false,
-          error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
-          timestamp: new Date().toISOString(),
-        } as ApiResponse);
-        return;
-      }
-
-      const expiresIn = 24 * 60 * 60;
-      const token = jwt.sign(
-        {
-          userId: user.id,
-          email: user.email,
-          role: user.role,
-        },
-        jwtSecret,
-        { expiresIn }
-      );
-
-      const response: LoginResponse = {
-        user,
-        token,
-        expiresIn,
-      };
-
-      logger.info(`User ${user.email} logged in successfully`);
-
-      res.status(200).json({
-        success: true,
-        data: response,
-        message: API_RESPONSES.SUCCESS_MESSAGES.LOGIN_SUCCESS,
-        timestamp: new Date().toISOString(),
-      } as ApiResponse<LoginResponse>);
-    } catch (error) {
-      logger.error('Login error:', error);
-      res.status(500).json({
-        success: false,
-        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
-        timestamp: new Date().toISOString(),
-      } as ApiResponse);
+    if (!email || !password || !username) {
+      return failure(res, 400, API_RESPONSES.VALIDATION_ERRORS.MISSING_FIELDS);
     }
+
+    const existing = await UserService.findByEmail(email);
+    if (existing) {
+      return failure(res, 400, API_RESPONSES.USER_ERRORS.EMAIL_ALREADY_EXISTS);
+    }
+
+    const userRole = await RoleService.findRoleByName(role || 'viewer');
+    if (!userRole) {
+      return failure(res, 500, API_RESPONSES.USER_ERRORS.ROLE_NOT_FOUND);
+    }
+
+    const newUser = await UserService.createUser({
+      email,
+      password,
+      username,
+      roleId: userRole.id,
+    });
+    return success(
+      res,
+      toPublicUserDTO({ ...newUser, role: userRole.name }),
+      API_RESPONSES.SUCCESS_MESSAGES.SIGNUP_SUCCESS
+    );
   }
 
-  static async getProfile(req: Request, res: Response): Promise<void> {
-    try {
-      const user = (req as any).user as User;
-      if (!user) {
-        res.status(401).json({
-          success: false,
-          error: API_RESPONSES.AUTH_ERRORS.UNAUTHORIZED,
-          timestamp: new Date().toISOString(),
-        } as ApiResponse);
-        return;
-      }
-      res.status(200).json({
-        success: true,
-        data: user,
-        message: API_RESPONSES.SUCCESS_MESSAGES.PROFILE_RETRIEVED,
-        timestamp: new Date().toDateString(),
-      } as ApiResponse<User>);
-    } catch (error) {
-      logger.error('Get Profile Error: ', error);
-      res.status(500).json({
-        success: false,
-        error: API_RESPONSES.SYSTEM_ERRORS.INTERNAL_SERVER_ERROR,
-        timestamp: new Date().toISOString(),
-      } as ApiResponse);
+  static async login(req: Request, res: Response) {
+    const { email, password }: LoginRequestDTO = req.body;
+
+    const user = await UserService.findByEmail(email);
+    if (!user) {
+      return failure(res, 401, API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS);
     }
+
+    const valid = await UserService.verifyPassword(password, user.passwordHash);
+    if (!valid) {
+      return failure(res, 401, API_RESPONSES.AUTH_ERRORS.INVALID_CREDENTIALS);
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      config.server.jwt,
+      { expiresIn: '1d' }
+    );
+
+    const response: LoginResponseDTO = {
+      user: toPublicUserDTO(user),
+      token,
+      expiresIn: 86400,
+    };
+    return success(res, response, API_RESPONSES.SUCCESS_MESSAGES.LOGIN_SUCCESS);
+  }
+
+  static async getProfile(req: Request, res: Response) {
+    const { user } = req as AuthenticatedRequest;
+
+    if (!user) {
+      return failure(res, 401, API_RESPONSES.AUTH_ERRORS.UNAUTHORIZED);
+    }
+
+    const profile: UserDTO = {
+      ...user,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: profile,
+    });
   }
 }

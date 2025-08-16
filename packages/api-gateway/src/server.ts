@@ -1,12 +1,10 @@
-import dotenv from 'dotenv';
+import { config } from './config';
 import { createApp } from './app';
 import { logger } from './utils/logger.utils';
 import { RedisConnection } from './middleware/redis.middleware';
 
-dotenv.config();
-
-const PORT = parseInt(process.env.PORT || '3000', 10);
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = config.server.port;
+const HOST = config.server.host;
 
 async function startServer(): Promise<void> {
   try {

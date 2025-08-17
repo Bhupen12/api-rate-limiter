@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response, NextFunction } from 'express';
 import { Redis } from 'ioredis';
 import { failure } from '../utils/response.utils';
-import { API_RESPONSES } from 'src/constants';
+import { API_RESPONSES } from '../constants';
 
 const DEFAULT_CAPACITY = 60;
 const DEFAULT_REFILL_RATE = 1; // tokens per second

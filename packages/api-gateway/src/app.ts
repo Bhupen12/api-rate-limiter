@@ -1,9 +1,10 @@
+import compression from 'compression';
 import express, { Application } from 'express';
 import helmet from 'helmet';
-import compression from 'compression';
 import { corsMiddleware } from './middleware/cors.middleware';
-import { loggerMiddleware } from './middleware/logger.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
+import { geoBlockMiddleware } from './middleware/geo-block.middleware';
+import { loggerMiddleware } from './middleware/logger.middleware';
 import { routes } from './routes';
 import { logger } from './utils/logger.utils';
 
@@ -21,6 +22,9 @@ export async function createApp(): Promise<Application> {
 
   // Request logging
   app.use(loggerMiddleware);
+
+  // Geo-block middleware
+  app.use(geoBlockMiddleware);
 
   // Body parsing middleware
   app.use(express.json({ limit: '10mb' }));

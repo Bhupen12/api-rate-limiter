@@ -4,3 +4,9 @@ export const RATE_LIMIT_ERRORS = {
   RATE_LIMITER_FAILED: 'Rate limiter internal error',
   RATE_LIMIT_API_KEY_MISSING: 'API key is missing',
 };
+
+export const GEO_BLOCK_ERRORS = {
+  BLOCKED: 'Access denied based on geographic location or IP reputation',
+  INVALID_COUNTRY: 'Invalid country code provided',
+  INVALID_IP: 'Invalid IP address provided',
+} as const;

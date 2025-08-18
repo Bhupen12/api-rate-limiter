@@ -1,4 +1,4 @@
-export const REDIS_KEY_PREFIX = 'api-rate-limit:';
+export const REDIS_KEY_PREFIX = 'leaky-bucket:';
 
 export const REDIS_RATE_LIMIT = {
   user: `${REDIS_KEY_PREFIX}rate-limit:user`,
@@ -18,5 +18,6 @@ export const REDIS_GEO_BLOCK_KEY = {
   ipWhitelist: `${REDIS_KEY_PREFIX}geo:whitelist:ips`,
   ipBlacklist: `${REDIS_KEY_PREFIX}geo:blocklist:ips`,
   countryBlocklist: `${REDIS_KEY_PREFIX}geo:blocklist:countries`,
-  countryAllowlist: 'geo:allowlist:countries',
+  countryAllowlist: `${REDIS_KEY_PREFIX}geo:allowlist:countries`,
+  reputationPrefix: `${REDIS_KEY_PREFIX}geo:reputation:`,
 };

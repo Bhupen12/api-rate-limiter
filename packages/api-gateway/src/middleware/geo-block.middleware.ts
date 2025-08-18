@@ -73,7 +73,7 @@ export const geoBlockMiddleware = async (
       }
     }
 
-    const repKey = `ip:rep:${clientIp}`;
+    const repKey = `${REDIS_GEO_BLOCK_KEY.reputationPrefix}:${clientIp}`;
     const cached = await redis.get(repKey);
     let reputations: ReputationResult[];
 

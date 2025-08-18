@@ -1,6 +1,6 @@
-import { GEO_BLOCK_ERRORS } from 'src/constants/api-response';
-import { IpBlockService } from 'src/services/ip-block.service';
-import { failure, success } from 'src/utils/response.utils';
+import { GEO_BLOCK_ERRORS } from '../constants/api-response';
+import { IpBlockService } from '../services/ip-block.service';
+import { failure, success } from '../utils/response.utils';
 import { Request, Response } from 'express';
 
 export class CIDRController {

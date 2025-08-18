@@ -1,5 +1,5 @@
 import { eq, isNull } from 'drizzle-orm';
-import { db } from 'src/db';
+import { db } from '../db';
 import { blockedCidrs } from '../db/schema/blocked_cidrs';
 import { logger } from '../utils/logger.utils';
 import Redis from 'ioredis';

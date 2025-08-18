@@ -6,11 +6,11 @@ import { logger } from '../utils/logger.utils';
 import { failure } from '../utils/response.utils';
 import { getClientIp } from '../utils/get-client-ip';
 import { REDIS_GEO_BLOCK_KEY } from '../constants/redis.constants';
-import { ReputationService } from 'src/services/reputation/reputation.service';
-import { IPQualityScoreAdapter } from 'src/services/reputation/ipqualityscore.adapter';
-import { config } from 'src/config';
+import { ReputationService } from '../services/reputation/reputation.service';
+import { IPQualityScoreAdapter } from '../services/reputation/ipqualityscore.adapter';
+import { config } from '../config';
 import { isPrivate } from 'ip';
-import { ReputationResult } from 'src/types/ip-reputation';
+import { ReputationResult } from '../types/ip-reputation';
 
 const reputationAdapter = new ReputationService([new IPQualityScoreAdapter()]);
 const REPUTATION_CACHE_TTL = config.ipqualityscore.reputationCacheTtl;

@@ -89,7 +89,7 @@ export const geoBlockMiddleware = async (
       reputations = JSON.parse(cached) as ReputationResult[];
     }
 
-    const maxScore = Math.max(...reputations.map((r) => r.score ?? 0));
+    const maxScore = ReputationService.maxScore(reputations);
     if (maxScore >= REPUTATION_BLOCK_THRESHOLD) {
       logger.warn(
         `Blocked request from IP with high reputation score: ${clientIp} (Score: ${maxScore})`

@@ -20,4 +20,18 @@ export const config = {
     host: process.env.HOST || 'localhost',
     jwt: process.env.JWT_SECRET!,
   },
+  ipqualityscore: {
+    apiKey: process.env.ABUSE_IP_DB_API_KEY!,
+    baseUrl:
+      process.env.ABUSE_IP_DB_URL || 'https://api.abuseipdb.com/api/v2/check',
+    maxAgeInDays: parseInt(process.env.ABUSE_IP_DB_MAX_AGE || '50', 10),
+    reputationCacheTtl: parseInt(
+      process.env.REPUTATION_CACHE_TTL || '3600',
+      10
+    ),
+    reputationBlockThreshold: parseInt(
+      process.env.REPUTATION_BLOCK_THRESHOLD || '50',
+      10
+    ),
+  },
 };

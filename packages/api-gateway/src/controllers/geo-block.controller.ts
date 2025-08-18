@@ -59,4 +59,21 @@ export class GeoBlockController {
       'Country removed from blocklist successfully'
     );
   }
+
+  static async listWhitelist(req: Request, res: Response) {
+    const ips = await req.redis.smembers(REDIS_GEO_BLOCK_KEY.ipWhitelist);
+    return success(res, ips, 'IP whitelist retrieved successfully');
+  }
+
+  static async listBlacklist(req: Request, res: Response) {
+    const ips = await req.redis.smembers(REDIS_GEO_BLOCK_KEY.ipBlacklist);
+    return success(res, ips, 'IP blacklist retrieved successfully');
+  }
+
+  static async listCountryBlocklist(req: Request, res: Response) {
+    const countries = await req.redis.smembers(
+      REDIS_GEO_BLOCK_KEY.countryBlocklist
+    );
+    return success(res, countries, 'Country blocklist retrieved successfully');
+  }
 }

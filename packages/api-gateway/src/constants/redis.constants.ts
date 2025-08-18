@@ -18,4 +18,5 @@ export const REDIS_GEO_BLOCK_KEY = {
   ipWhitelist: `${REDIS_KEY_PREFIX}geo:whitelist:ips`,
   ipBlacklist: `${REDIS_KEY_PREFIX}geo:blocklist:ips`,
   countryBlocklist: `${REDIS_KEY_PREFIX}geo:blocklist:countries`,
+  countryAllowlist: 'geo:allowlist:countries',
 };

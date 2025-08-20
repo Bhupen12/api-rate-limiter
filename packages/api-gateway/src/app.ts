@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
 import { geoBlockMiddleware } from './middleware/geo-block.middleware';
+import { IPMiddleware } from './middleware/ip.middleware';
 import { loggerMiddleware } from './middleware/logger.middleware';
 import { routes } from './routes';
 import { logger } from './utils/logger.utils';
@@ -22,6 +23,9 @@ export async function createApp(): Promise<Application> {
 
   // Request logging
   app.use(loggerMiddleware);
+
+  // IP address extraction middleware
+  app.use(IPMiddleware);
 
   // Geo-block middleware
   app.use(geoBlockMiddleware);

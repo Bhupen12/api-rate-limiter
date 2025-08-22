@@ -1,16 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import geoip from 'geoip-lite';
 import Redis from 'ioredis';
+import { config } from '../config';
 import { API_RESPONSES } from '../constants';
+import { REDIS_GEO_BLOCK_KEY } from '../constants/redis.constants';
+import { GeoService } from '../services/geo.service';
+import { IPQualityScoreAdapter } from '../services/reputation/ipqualityscore.adapter';
+import { ReputationService } from '../services/reputation/reputation.service';
+import SecurityPolicyService from '../services/security-policy.service';
+import { ReputationResult } from '../types/ip-reputation';
 import { logger } from '../utils/logger.utils';
 import { failure } from '../utils/response.utils';
-import { getClientIp } from '../utils/get-client-ip';
-import { REDIS_GEO_BLOCK_KEY } from '../constants/redis.constants';
-import { ReputationService } from '../services/reputation/reputation.service';
-import { IPQualityScoreAdapter } from '../services/reputation/ipqualityscore.adapter';
-import { config } from '../config';
-import { isPrivate } from 'ip';
-import { ReputationResult } from '../types/ip-reputation';
 
 const reputationAdapter = new ReputationService([new IPQualityScoreAdapter()]);
 const REPUTATION_CACHE_TTL = config.ipqualityscore.reputationCacheTtl;
@@ -27,50 +26,33 @@ export const geoBlockMiddleware = async (
     return next();
   }
 
-  const clientIp = getClientIp(req);
+  const clientIp = req.clientIp;
   if (!clientIp) {
     return failure(res, 400, API_RESPONSES.GEO_BLOCK_ERRORS.INVALID_IP);
   }
   const redis: Redis = req.redis;
 
   try {
-    // Skip checks for private IPs
-    if (isPrivate(clientIp)) {
+    const policyService = SecurityPolicyService.getInstance(req.redis);
+
+    // check whitelist: Allow requests from whitelisted IPs
+    if (policyService.isIpWhitelisted(clientIp)) {
       return next();
     }
 
-    // check whitelist
-    const isWhiteListed = await redis.sismember(
-      REDIS_GEO_BLOCK_KEY.ipWhitelist,
-      clientIp
-    );
-    if (isWhiteListed) {
-      return next();
-    }
-
-    // check blacklist
-    const isBlackListed = await redis.sismember(
-      REDIS_GEO_BLOCK_KEY.ipBlacklist,
-      clientIp
-    );
-    if (isBlackListed) {
+    // check blacklist: Block requests from blacklisted IPs
+    if (policyService.isIpBlacklisted(clientIp)) {
       logger.warn(`Blocked request from blacklisted IP: ${clientIp}`);
       return failure(res, 403, API_RESPONSES.GEO_BLOCK_ERRORS.BLOCKED);
     }
 
-    // check country
-    const geo = geoip.lookup(clientIp);
-    if (geo && geo.country) {
-      const isCountryBlocked = await redis.sismember(
-        REDIS_GEO_BLOCK_KEY.countryBlocklist,
-        geo.country
+    // check country Block: Block requests from specific countries
+    const geo = GeoService.lookup(clientIp);
+    if (geo && policyService.isCountryBlocked(geo.country)) {
+      logger.warn(
+        `Blocked request from blocked country: ${geo.country} (IP: ${clientIp})`
       );
-      if (isCountryBlocked) {
-        logger.warn(
-          `Blocked request from blocked country: ${geo.country} (IP: ${clientIp})`
-        );
-        return failure(res, 403, API_RESPONSES.GEO_BLOCK_ERRORS.BLOCKED);
-      }
+      return failure(res, 403, API_RESPONSES.GEO_BLOCK_ERRORS.BLOCKED);
     }
 
     const repKey = `${REDIS_GEO_BLOCK_KEY.reputationPrefix}:${clientIp}`;

@@ -17,6 +17,7 @@ export const REDIS_RATE_LIMIT = {
 export const REDIS_GEO_BLOCK_KEY = {
   ipWhitelist: `${REDIS_KEY_PREFIX}geo:whitelist:ips`,
   ipBlacklist: `${REDIS_KEY_PREFIX}geo:blocklist:ips`,
+  cidrBlacklist: `${REDIS_KEY_PREFIX}geo:blocklist:cidrs`,
   countryBlocklist: `${REDIS_KEY_PREFIX}geo:blocklist:countries`,
   countryAllowlist: `${REDIS_KEY_PREFIX}geo:allowlist:countries`,
   reputationPrefix: `${REDIS_KEY_PREFIX}geo:reputation:`,

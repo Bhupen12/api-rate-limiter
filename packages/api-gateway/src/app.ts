@@ -12,6 +12,10 @@ import { logger } from './utils/logger.utils';
 export async function createApp(): Promise<Application> {
   const app: Application = express();
 
+  // Set trust proxy to true if you are behind a load balancer or reverse proxy
+  // This allows Express to trust the X-Forwarded-* headers
+  app.set('trust proxy', true);
+
   // Security middleware
   app.use(helmet());
 

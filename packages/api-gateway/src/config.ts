@@ -20,32 +20,23 @@ export const config = {
     host: process.env.HOST || 'localhost',
     jwt: process.env.JWT_SECRET!,
   },
-  ipqualityscore: {
-    apiKey: process.env.IPQS_API_KEY!,
-    baseUrl:
-      process.env.IPQS_API_URL || 'https://ipqualityscore.com/api/json/ip',
-    maxAgeInDays: parseInt(process.env.IPQS_MAX_AGE || '50', 10),
-    reputationCacheTtl: parseInt(
-      process.env.IPQS_REPUTATION_CACHE_TTL || '3600',
+  reputation: {
+    cacheTtl: parseInt(process.env.REPUTATION_CACHE_TTL || '3600', 10), // seconds
+    lockTtl: parseInt(process.env.REPUTATION_LOCK_TTL || '10', 10), // seconds
+    blockThreshold: parseInt(
+      process.env.REPUTATION_BLOCK_THRESHOLD || '50',
       10
-    ),
-    reputationBlockThreshold: parseInt(
-      process.env.IPQS_REPUTATION_BLOCK_THRESHOLD || '50',
-      10
-    ),
-  },
-  abuseipdb: {
-    apiKey: process.env.ABUSE_IP_DB_API_KEY!,
-    baseUrl:
-      process.env.ABUSE_IP_DB_URL || 'https://api.abuseipdb.com/api/v2/check',
-    maxAgeInDays: parseInt(process.env.ABUSE_IP_DB_MAX_AGE || '90', 10),
-    reputationCacheTtl: parseInt(
-      process.env.ABUSE_IP_DB_REPUTATION_CACHE_TTL || '3600',
-      10
-    ),
-    reputationBlockThreshold: parseInt(
-      process.env.ABUSE_IP_DB_REPUTATION_BLOCK_THRESHOLD || '90',
-      10
-    ),
+    ), // percentage
+    maxAgeInDays: parseInt(process.env.REPUTATION_MAX_AGE || '30', 10), // days
+    ipqualityscore: {
+      apiKey: process.env.IPQS_API_KEY!,
+      baseUrl:
+        process.env.IPQS_API_URL || 'https://ipqualityscore.com/api/json/ip',
+    },
+    abuseipdb: {
+      apiKey: process.env.ABUSE_IP_DB_API_KEY!,
+      baseUrl:
+        process.env.ABUSE_IP_DB_URL || 'https://api.abuseipdb.com/api/v2/check',
+    },
   },
 };

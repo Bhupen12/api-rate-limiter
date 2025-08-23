@@ -12,9 +12,8 @@ import { logger } from '../utils/logger.utils';
 import { failure } from '../utils/response.utils';
 
 const reputationAdapter = new ReputationService([new IPQualityScoreAdapter()]);
-const REPUTATION_CACHE_TTL = config.ipqualityscore.reputationCacheTtl;
-const REPUTATION_BLOCK_THRESHOLD =
-  config.ipqualityscore.reputationBlockThreshold;
+const REPUTATION_CACHE_TTL = config.reputation.cacheTtl;
+const REPUTATION_BLOCK_THRESHOLD = config.reputation.blockThreshold;
 
 export const geoBlockMiddleware = async (
   req: Request,

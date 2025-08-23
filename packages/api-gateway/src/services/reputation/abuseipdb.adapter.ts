@@ -8,9 +8,9 @@ export class AbuseIPDBAdapter implements ReputationAdapter {
   private readonly maxAgeInDays: number;
 
   constructor() {
-    this.baseUrl = config.abuseipdb.baseUrl;
-    this.apiKey = config.abuseipdb.apiKey;
-    this.maxAgeInDays = config.abuseipdb.maxAgeInDays;
+    this.baseUrl = config.reputation.abuseipdb.baseUrl;
+    this.apiKey = config.reputation.abuseipdb.apiKey;
+    this.maxAgeInDays = config.reputation.maxAgeInDays;
   }
 
   async check(ip: string): Promise<ReputationResult> {

@@ -7,8 +7,8 @@ export class IPQualityScoreAdapter implements ReputationAdapter {
   private readonly baseUrl: string;
 
   constructor() {
-    this.baseUrl = config.ipqualityscore.baseUrl;
-    this.apiKey = config.ipqualityscore.apiKey;
+    this.baseUrl = config.reputation.ipqualityscore.baseUrl;
+    this.apiKey = config.reputation.ipqualityscore.apiKey;
   }
 
   async check(ip: string): Promise<ReputationResult> {

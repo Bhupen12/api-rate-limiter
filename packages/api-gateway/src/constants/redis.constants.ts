@@ -21,4 +21,5 @@ export const REDIS_GEO_BLOCK_KEY = {
   countryBlocklist: `${REDIS_KEY_PREFIX}geo:blocklist:countries`,
   countryAllowlist: `${REDIS_KEY_PREFIX}geo:allowlist:countries`,
   reputationPrefix: `${REDIS_KEY_PREFIX}geo:reputation:`,
+  lockKeyPrefix: `${REDIS_KEY_PREFIX}geo:lock:`,
 };

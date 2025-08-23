@@ -8,6 +8,9 @@ import { IPMiddleware } from './middleware/ip.middleware';
 import { loggerMiddleware } from './middleware/logger.middleware';
 import { routes } from './routes';
 import { logger } from './utils/logger.utils';
+import { redisMiddleware } from './middleware/redis.middleware';
+import { rateLimiterMiddleware } from './middleware/rate-limiter.middleware';
+import { reputationMiddleware } from './middleware/reputation.middleware';
 
 export async function createApp(): Promise<Application> {
   const app: Application = express();
@@ -21,6 +24,17 @@ export async function createApp(): Promise<Application> {
 
   // Compression middleware
   app.use(compression());
+
+  // Attach essential data to the request. MUST BE FIRST.
+  app.use(IPMiddleware);
+
+  // Attach Redis client for other middleware to use.
+  app.use(redisMiddleware);
+
+  // Unauthenticated, cheap checks. Block malicious actors as early as possible.
+  app.use(rateLimiterMiddleware); // Rate limit by IP or API key first.
+  app.use(geoBlockMiddleware); // Check whitelists, blacklists, and country blocks.
+  app.use(reputationMiddleware); // Check third-party reputation (has own cache).
 
   // CORS middleware
   app.use(corsMiddleware);

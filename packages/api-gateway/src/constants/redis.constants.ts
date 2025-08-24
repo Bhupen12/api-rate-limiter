@@ -16,3 +16,7 @@ export const REDIS_GEO_BLOCK_KEY = {
   reputationPrefix: `${REDIS_KEY_PREFIX}geo:reputation:`,
   lockKeyPrefix: `${REDIS_KEY_PREFIX}geo:lock:`,
 };
+
+export const REDIS_CHANNELS = {
+  invalidation: `${REDIS_KEY_PREFIX}security-policy:invalidate`,
+};

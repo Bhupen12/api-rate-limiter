@@ -20,6 +20,15 @@ export const config = {
     host: process.env.HOST || 'localhost',
     jwt: process.env.JWT_SECRET!,
   },
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    password: process.env.REDIS_PASSWORD || undefined,
+    db: parseInt(process.env.REDIS_DB || '0', 10),
+    tls: process.env.REDIS_TLS === 'true' ? {} : undefined,
+    enableDistributedInvalidation:
+      process.env.ENABLE_DISTRIBUTED_INVALIDATION === 'true',
+  },
   ratelimit: {
     defaultCapacity: parseInt(process.env.DEFAULT_CAPACITY || '60', 10), // tokens
     defaultRefillTokens: parseInt(process.env.DEFAULT_REFILL_TOKENS || '1', 10), // per interval

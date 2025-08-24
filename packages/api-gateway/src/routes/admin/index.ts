@@ -3,7 +3,7 @@ import { rateLimitRoutes } from './rate-limiter.routes';
 import { geoBlockRoutes } from './geo-block.routes';
 import { authMiddleware } from '../../middleware/auth.middleware';
 import { requireAdmin } from '../../middleware/role-guard.middleware';
-import { adminRateLimiterMiddleware } from '../../middleware/admin.middleware';
+import { adminRateLimiterMiddleware } from '../../middleware/rate-limiter';
 
 const adminRouter: Router = Router();
 

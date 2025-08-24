@@ -6,7 +6,7 @@ import { errorMiddleware } from './middleware/error.middleware';
 import { geoBlockMiddleware } from './middleware/geo-block.middleware';
 import { IPMiddleware } from './middleware/ip.middleware';
 import { loggerMiddleware } from './middleware/logger.middleware';
-import { rateLimiterMiddleware } from './middleware/rate-limiter.middleware';
+import { globalRateLimiterMiddleware } from './middleware/rate-limiter';
 import { redisMiddleware } from './middleware/redis.middleware';
 import { reputationMiddleware } from './middleware/reputation.middleware';
 import { routes } from './routes';
@@ -41,7 +41,7 @@ export async function createApp(): Promise<Application> {
   app.use('/health', healthRoutes);
 
   // Unauthenticated, cheap checks. Block malicious actors as early as possible.
-  app.use(rateLimiterMiddleware); // Rate limit by API key first.
+  app.use(globalRateLimiterMiddleware); // Rate limit by API key first.
   app.use(geoBlockMiddleware); // Check whitelists, blacklists, and country blocks.
   app.use(reputationMiddleware); // Check third-party reputation (has own cache).
 

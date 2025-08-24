@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
 import { Redis } from 'ioredis';
-import { failure } from '../utils/response.utils';
-import { API_RESPONSES } from '../constants';
+import { failure } from '../../utils/response.utils';
+import { API_RESPONSES } from '../../constants';
 import { AuthenticatedRequest } from '@shared/types';
-import { config } from '../config';
-import { REDIS_RATE_LIMIT } from '../constants/redis.constants';
+import { config } from '../../config';
+import { REDIS_RATE_LIMIT } from '../../constants/redis.constants';
 
 const ADMIN_RATE_LIMIT = config.ratelimit.adminRateLimit;
 const WINDOW_SIZE = config.ratelimit.adminRateWindow;

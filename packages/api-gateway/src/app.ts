@@ -41,7 +41,7 @@ export async function createApp(): Promise<Application> {
   app.use('/health', healthRoutes);
 
   // Unauthenticated, cheap checks. Block malicious actors as early as possible.
-  app.use(rateLimiterMiddleware); // Rate limit by IP or API key first.
+  app.use(rateLimiterMiddleware); // Rate limit by API key first.
   app.use(geoBlockMiddleware); // Check whitelists, blacklists, and country blocks.
   app.use(reputationMiddleware); // Check third-party reputation (has own cache).
 

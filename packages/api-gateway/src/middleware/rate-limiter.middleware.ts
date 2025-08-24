@@ -2,11 +2,15 @@ import { Request, RequestHandler, Response, NextFunction } from 'express';
 import { Redis } from 'ioredis';
 import { failure } from '../utils/response.utils';
 import { API_RESPONSES } from '../constants';
+import { config } from '../config';
+import { REDIS_RATE_LIMIT } from '../constants/redis.constants';
 
-const DEFAULT_CAPACITY = 60;
-const DEFAULT_REFILL_RATE = 1; // tokens per second
-const API_KEY_PREFIX = 'rate-limit:config:';
-const TOKEN_BUCKET_PREFIX = 'rate-limit:bucket:';
+const DEFAULT_CAPACITY = config.ratelimit.defaultCapacity || 60; // tokens
+const DEFAULT_REFILL_TOKENS = config.ratelimit.defaultRefillTokens || 1; // per interval
+const DEFAULT_REFILL_INTERVAL = config.ratelimit.defaultRefillInterval || 1; // in seconds
+const DEFAULT_REFILL_RATE = DEFAULT_REFILL_TOKENS / DEFAULT_REFILL_INTERVAL; // tokens per second
+const API_KEY_PREFIX = REDIS_RATE_LIMIT.apiKeyPrefix;
+const TOKEN_BUCKET_PREFIX = REDIS_RATE_LIMIT.tokenBucketPrefix;
 
 export const rateLimiterMiddleware: RequestHandler = () => {
   return async (req: Request, res: Response, next: NextFunction) => {

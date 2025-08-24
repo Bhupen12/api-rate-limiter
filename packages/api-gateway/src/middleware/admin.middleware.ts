@@ -3,10 +3,12 @@ import { Redis } from 'ioredis';
 import { failure } from '../utils/response.utils';
 import { API_RESPONSES } from '../constants';
 import { AuthenticatedRequest } from '@shared/types';
+import { config } from '../config';
+import { REDIS_RATE_LIMIT } from '../constants/redis.constants';
 
-const ADMIN_RATE_LIMIT = 100; // 100 requests
-const WINDOW_SIZE = 60 * 60; // 1 hour in seconds
-const ADMIN_RATE_KEY_PREFIX = 'admin-rate-limit:';
+const ADMIN_RATE_LIMIT = config.ratelimit.adminRateLimit;
+const WINDOW_SIZE = config.ratelimit.adminRateWindow;
+const ADMIN_RATE_KEY_PREFIX = REDIS_RATE_LIMIT.adminRatePrefix;
 
 export const adminRateLimiterMiddleware = async (
   req: AuthenticatedRequest,

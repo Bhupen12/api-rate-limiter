@@ -20,6 +20,16 @@ export const config = {
     host: process.env.HOST || 'localhost',
     jwt: process.env.JWT_SECRET!,
   },
+  ratelimit: {
+    defaultCapacity: parseInt(process.env.DEFAULT_CAPACITY || '60', 10), // tokens
+    defaultRefillTokens: parseInt(process.env.DEFAULT_REFILL_TOKENS || '1', 10), // per interval
+    defaultRefillInterval: parseInt(
+      process.env.DEFAULT_REFILL_INTERVAL || '1',
+      10
+    ), // in seconds
+    adminRateLimit: parseInt(process.env.ADMIN_RATE_LIMIT || '200', 10), // requests
+    adminRateWindow: parseInt(process.env.ADMIN_RATE_WINDOW || '3600', 10), // in seconds
+  },
   reputation: {
     cacheTtl: parseInt(process.env.REPUTATION_CACHE_TTL || '3600', 10), // seconds
     lockTtl: parseInt(process.env.REPUTATION_LOCK_TTL || '10', 10), // seconds

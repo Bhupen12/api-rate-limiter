@@ -1,16 +1,9 @@
 export const REDIS_KEY_PREFIX = 'leaky-bucket:';
 
 export const REDIS_RATE_LIMIT = {
-  user: `${REDIS_KEY_PREFIX}rate-limit:user`,
-  userWindow: `${REDIS_KEY_PREFIX}rate-limit:user-window`,
-  global: `${REDIS_KEY_PREFIX}rate-limit:global`,
-  globalWindow: `${REDIS_KEY_PREFIX}rate-limit:global-window`,
-  ip: `${REDIS_KEY_PREFIX}rate-limit:ip`,
-  ipWindow: `${REDIS_KEY_PREFIX}rate-limit:ip-window`,
-  cloudflareIp: `${REDIS_KEY_PREFIX}rate-limit:cloudflare-ip`,
-  cloudflareIpWindow: `${REDIS_KEY_PREFIX}rate-limit:cloudflare-ip-window`,
-  userAgent: `${REDIS_KEY_PREFIX}rate-limit:user-agent`,
-  userAgentWindow: `${REDIS_KEY_PREFIX}rate-limit:user-agent-window`,
+  apiKeyPrefix: `${REDIS_KEY_PREFIX}rate-limit:config:`,
+  tokenBucketPrefix: `${REDIS_KEY_PREFIX}rate-limit:bucket:`,
+  adminRatePrefix: `${REDIS_KEY_PREFIX}admin-rate-limit:`,
 };
 
 // Geo-blocking keys

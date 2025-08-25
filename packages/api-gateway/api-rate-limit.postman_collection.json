@@ -1,0 +1,603 @@
+{
+  "info": {
+    "name": "API Rate Limit - Full Collection",
+    "description": "Postman collection for api-rate-limit project. Base URL uses {{baseUrl}}. Set {{token}} after login (script sets environment variable).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.user@example.com\",\n  \"password\": \"P@ssw0rd!\",\n  \"name\": \"New User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}/auth/register"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Register - Example Success",
+              "originalRequest": {},
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"user_123\",\n  \"email\": \"new.user@example.com\",\n  \"name\": \"New User\",\n  \"role\": \"user\",\n  \"createdAt\": \"2025-08-25T12:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"AdminP@ss123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}/auth/login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  var json = pm.response.json();",
+                  "  if (json && json.token) {",
+                  "    // set environment token for subsequent requests",
+                  "    pm.environment.set(\"token\", json.token);",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
+                  "  }",
+                  "  pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "} catch (e) {",
+                  "  console.log('Login script error', e);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Login - Example Success",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token\": \"eyJhbGciOi...example.token\",\n  \"user\": {\n    \"id\": \"admin_1\",\n    \"email\": \"admin@example.com\",\n    \"name\": \"Admin User\",\n    \"role\": \"admin\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Protected",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/protected/profile",
+              "host": [
+                "{{baseUrl}}/protected/profile"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Profile - Example",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"admin_1\",\n  \"email\": \"admin@example.com\",\n  \"name\": \"Admin User\",\n  \"role\": \"admin\",\n  \"createdAt\": \"2024-01-01T08:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Protected Health (example)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/protected/health",
+              "host": [
+                "{{baseUrl}}/protected/health"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Protected Health - Example",
+              "originalRequest": {},
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"uptime\": 123456,\n  \"db\": \"connected\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Geo Block",
+          "item": [
+            {
+              "name": "Block IP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ip\": \"203.0.113.45\",\n  \"reason\": \"suspicious activity\",\n  \"expiresAt\": \"2025-09-25T00:00:00Z\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/geo/block/ip",
+                  "host": [
+                    "{{baseUrl}}/admin/geo/block/ip"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Block IP - Example",
+                  "originalRequest": {},
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"block_ip_1\",\n  \"ip\": \"203.0.113.45\",\n  \"reason\": \"suspicious activity\",\n  \"blocked\": true,\n  \"expiresAt\": \"2025-09-25T00:00:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Unblock IP",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/geo/unblock/ip/{{ip}}",
+                  "host": [
+                    "{{baseUrl}}/admin/geo/unblock/ip/{{ip}}"
+                  ],
+                  "variable": [
+                    {
+                      "key": "ip",
+                      "value": "203.0.113.45"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Unblock IP - Example",
+                  "originalRequest": {},
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"ip\": \"203.0.113.45\",\n  \"blocked\": false,\n  \"message\": \"IP unblocked\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Block Country",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"countryCode\": \"CN\",\n  \"reason\": \"high abuse rate\",\n  \"expiresAt\": \"2026-01-01T00:00:00Z\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/geo/block/country",
+                  "host": [
+                    "{{baseUrl}}/admin/geo/block/country"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Block Country - Example",
+                  "originalRequest": {},
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"block_country_1\",\n  \"countryCode\": \"CN\",\n  \"reason\": \"high abuse rate\",\n  \"blocked\": true,\n  \"expiresAt\": \"2026-01-01T00:00:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Unblock Country",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/geo/unblock/country/{{countryCode}}",
+                  "host": [
+                    "{{baseUrl}}/admin/geo/unblock/country/{{countryCode}}"
+                  ],
+                  "variable": [
+                    {
+                      "key": "countryCode",
+                      "value": "CN"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Unblock Country - Example",
+                  "originalRequest": {},
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"countryCode\": \"CN\",\n  \"blocked\": false,\n  \"message\": \"Country unblocked\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Rate Limits",
+          "item": [
+            {
+              "name": "Create Rate Limit",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Login Attempts\",\n  \"path\": \"/auth/login\",\n  \"limit\": 5,\n  \"windowSeconds\": 60,\n  \"scope\": \"ip\",\n  \"roles\": [\"guest\"]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rate-limits",
+                  "host": [
+                    "{{baseUrl}}/admin/rate-limits"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Create Rate Limit - Example",
+                  "originalRequest": {},
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"rl_1\",\n  \"name\": \"Login Attempts\",\n  \"path\": \"/auth/login\",\n  \"limit\": 5,\n  \"windowSeconds\": 60,\n  \"scope\": \"ip\",\n  \"roles\": [\"guest\"],\n  \"createdAt\": \"2025-08-25T12:10:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "List Rate Limits",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rate-limits",
+                  "host": [
+                    "{{baseUrl}}/admin/rate-limits"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "List Rate Limits - Example",
+                  "originalRequest": {},
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": \"rl_1\",\n    \"name\": \"Login Attempts\",\n    \"path\": \"/auth/login\",\n    \"limit\": 5,\n    \"windowSeconds\": 60,\n    \"scope\": \"ip\"\n  },\n  {\n    \"id\": \"rl_2\",\n    \"name\": \"API Global\",\n    \"path\": \"/*\",\n    \"limit\": 1000,\n    \"windowSeconds\": 3600,\n    \"scope\": \"global\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Get Rate Limit By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rate-limits/{{id}}",
+                  "host": [
+                    "{{baseUrl}}/admin/rate-limits/{{id}}"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "rl_1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Get Rate Limit - Example",
+                  "originalRequest": {},
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"rl_1\",\n  \"name\": \"Login Attempts\",\n  \"path\": \"/auth/login\",\n  \"limit\": 5,\n  \"windowSeconds\": 60,\n  \"scope\": \"ip\",\n  \"roles\": [\"guest\"]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Rate Limit",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Login Attempts - tightened\",\n  \"limit\": 3,\n  \"windowSeconds\": 60\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rate-limits/{{id}}",
+                  "host": [
+                    "{{baseUrl}}/admin/rate-limits/{{id}}"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "rl_1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Update Rate Limit - Example",
+                  "originalRequest": {},
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": \"rl_1\",\n  \"name\": \"Login Attempts - tightened\",\n  \"path\": \"/auth/login\",\n  \"limit\": 3,\n  \"windowSeconds\": 60,\n  \"updatedAt\": \"2025-08-25T12:20:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Rate Limit",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rate-limits/{{id}}",
+                  "host": [
+                    "{{baseUrl}}/admin/rate-limits/{{id}}"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "rl_1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Delete Rate Limit - Example",
+                  "originalRequest": {},
+                  "status": "No Content",
+                  "code": 204,
+                  "_postman_previewlanguage": "json",
+                  "header": [],
+                  "body": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

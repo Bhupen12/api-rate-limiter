@@ -8,6 +8,13 @@
     "paths": {
       "@shared/*": ["../shared/src/*"]
     },
+    "module": "commonjs",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "sourceMap": true
   },
   "include": ["src/**/*", "src/types/**/*.d.ts"],
   "references": [

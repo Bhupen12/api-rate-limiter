@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "API Gateway service",
   "main": "dist/server.js",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc --build",
     "dev": "tsx watch src/server.ts",

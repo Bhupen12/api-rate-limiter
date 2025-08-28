@@ -9,4 +9,5 @@ export const GEO_BLOCK_ERRORS = {
   BLOCKED: 'Access denied based on geographic location or IP reputation',
   INVALID_COUNTRY: 'Invalid country code provided',
   INVALID_IP: 'Invalid IP address provided',
+  IP_NOT_FOUND: 'Ip not found',
 } as const;

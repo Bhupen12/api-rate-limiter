@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { tokenBucketMiddlewareFactory } from './factories';
 import { REDIS_RATE_LIMIT } from '../../constants/redis.constants';
 import { config } from '../../config';
-import { RateLimitService } from 'src/services/rate-limit.service';
+import { RateLimitService } from '../../services/rate-limit.service';
 
 const getApiKey = (req: Request) => req.header('x-api-key');
 

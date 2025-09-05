@@ -1,15 +1,16 @@
 import compression from 'compression';
-import express, { Application } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
-import { geoBlockMiddleware } from './middleware/geo-block.middleware';
+import { geoPolicyMiddleware } from './middleware/geoPolicy.middleware';
 import { IPMiddleware } from './middleware/ip.middleware';
 import { loggerMiddleware } from './middleware/logger.middleware';
 import { redisMiddleware } from './middleware/redis.middleware';
 import { reputationMiddleware } from './middleware/reputation.middleware';
 import { routes } from './routes';
 import { healthRoutes } from './routes/health.routes';
+import SecurityPolicyService from './services/security-policy.service';
 import { logger } from './utils/logger.utils';
 
 export async function createApp(): Promise<Application> {
@@ -31,6 +32,12 @@ export async function createApp(): Promise<Application> {
   // Attach Redis client for other middleware to use.
   app.use(redisMiddleware);
 
+  app.use(async (req: Request, res: Response, next: NextFunction) => {
+    await SecurityPolicyService.bootstrap(req.redis);
+    await SecurityPolicyService.getInstance().subscribeReload();
+    next();
+  });
+
   // CORS middleware
   app.use(corsMiddleware);
 
@@ -40,7 +47,7 @@ export async function createApp(): Promise<Application> {
   app.use('/health', healthRoutes);
 
   // Unauthenticated, cheap checks. Block malicious actors as early as possible.
-  app.use(geoBlockMiddleware); // Check whitelists, blacklists, and country blocks.
+  app.use(geoPolicyMiddleware); // Check whitelists, blacklists, and country blocks.
   app.use(reputationMiddleware); // Check third-party reputation (has own cache).
 
   // Body parsing middleware

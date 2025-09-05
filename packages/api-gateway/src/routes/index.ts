@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { healthRoutes } from './health.routes';
 import { authRoutes } from './auth.routes';
 import { protectedRoutes } from './protected.routes';
 import { adminRouter } from './admin';
@@ -10,7 +9,6 @@ import { adminRateLimiterMiddleware } from '../middleware/rate-limiter/admin.mid
 const router: Router = Router();
 
 // Mount routes
-router.use('/health', ipRateLimiterMiddleware, healthRoutes);
 router.use('/auth', ipRateLimiterMiddleware, authRoutes);
 router.use('/protected', apiKeyRateLimiterMiddleware, protectedRoutes);
 

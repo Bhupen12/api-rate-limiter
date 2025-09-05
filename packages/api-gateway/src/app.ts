@@ -1,5 +1,5 @@
 import compression from 'compression';
-import express, { Application, NextFunction, Request, Response } from 'express';
+import express, { Application } from 'express';
 import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
@@ -10,7 +10,6 @@ import { redisMiddleware } from './middleware/redis.middleware';
 import { reputationMiddleware } from './middleware/reputation.middleware';
 import { routes } from './routes';
 import { healthRoutes } from './routes/health.routes';
-import SecurityPolicyService from './services/security-policy.service';
 import { logger } from './utils/logger.utils';
 
 export async function createApp(): Promise<Application> {
@@ -31,12 +30,6 @@ export async function createApp(): Promise<Application> {
 
   // Attach Redis client for other middleware to use.
   app.use(redisMiddleware);
-
-  app.use(async (req: Request, res: Response, next: NextFunction) => {
-    await SecurityPolicyService.bootstrap(req.redis);
-    await SecurityPolicyService.getInstance().subscribeReload();
-    next();
-  });
 
   // CORS middleware
   app.use(corsMiddleware);

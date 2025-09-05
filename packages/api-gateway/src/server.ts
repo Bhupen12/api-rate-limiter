@@ -1,6 +1,7 @@
 import { createApp } from './app';
 import { config } from './config';
 import { RedisConnection } from './middleware/redis.middleware';
+import SecurityPolicyService from './services/security-policy.service';
 import { logger } from './utils/logger.utils';
 
 const PORT = config.server.port;
@@ -8,13 +9,18 @@ const HOST = config.server.host;
 
 async function startServer(): Promise<void> {
   try {
+    let redis;
     try {
-      await RedisConnection.getClient();
+      redis = await RedisConnection.getClient();
       logger.info('Redis initialized at startup');
     } catch (err) {
       logger.error('Failed to initialize Redis at startup, exiting', err);
       process.exit(1);
     }
+
+    await SecurityPolicyService.bootstrap(redis);
+    await SecurityPolicyService.getInstance().subscribeReload();
+    logger.info('🔄 SecurityPolicyService initialized with distributed reload');
 
     const app = await createApp();
 

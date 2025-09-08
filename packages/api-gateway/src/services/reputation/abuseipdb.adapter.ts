@@ -26,7 +26,7 @@ export class AbuseIPDBAdapter implements ReputationAdapter {
           Accept: 'application/json',
         },
       });
-      const data = response.data;
+      const data = response.data.data;
 
       return {
         score: data.abuseConfidenceScore,

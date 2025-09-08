@@ -149,6 +149,12 @@ export function tokenBucketMiddlewareFactory(opts: {
           `${headerPrefix}-Reset`,
           String(Math.floor(now / 1000 + secondsUntilOne))
         );
+
+        return failure(
+          res,
+          429,
+          API_RESPONSES.RATE_LIMIT_ERRORS.TOO_MANY_REQUESTS
+        );
       }
 
       // consume 1 token and persist state

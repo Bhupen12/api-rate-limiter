@@ -9,7 +9,11 @@ export const ipRateLimiterMiddleware = tokenBucketMiddlewareFactory({
   getId: getClientIp,
   keyPrefix: REDIS_RATE_LIMIT.tokenBucketPrefix,
   getCapacity: async () => config.ratelimit.defaultCapacity,
-  getRefillRate: async () => config.ratelimit.defaultRefillTokens,
+  getRefillRate: async () => {
+    const tokens = config.ratelimit.defaultRefillTokens;
+    const interval = config.ratelimit.defaultRefillInterval;
+    return tokens / interval;
+  },
   ttlSeconds: 3600,
   headerPrefix: 'X-Ratelimit',
 });

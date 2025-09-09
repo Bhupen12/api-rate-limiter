@@ -26,7 +26,7 @@ export class AbuseIPDBAdapter implements ReputationAdapter {
           Accept: 'application/json',
         },
       });
-      const data = response.data;
+      const data = response.data.data;
 
       return {
         score: data.abuseConfidenceScore,
@@ -37,7 +37,7 @@ export class AbuseIPDBAdapter implements ReputationAdapter {
         categories: data.reports?.flatMap((r: any) => r.categories) || [],
       };
     } catch (error) {
-      console.error('IPQualityScore API error:', error);
+      console.error('AbuseIPDB API error:', error);
       return {};
     }
   }

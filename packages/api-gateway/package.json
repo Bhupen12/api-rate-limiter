@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@monorepo/shared": "workspace:*",
+    "@types/response-time": "^2.3.9",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "compression": "^1.7.4",

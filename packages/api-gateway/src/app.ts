@@ -11,6 +11,8 @@ import { reputationMiddleware } from './middleware/reputation.middleware';
 import { routes } from './routes';
 import { healthRoutes } from './routes/health.routes';
 import { logger } from './utils/logger.utils';
+import { metricsMiddleware } from './middleware/metrics.middleware';
+import { metricsRoutes } from './routes/metrics.routes';
 
 export async function createApp(): Promise<Application> {
   const app: Application = express();
@@ -36,6 +38,12 @@ export async function createApp(): Promise<Application> {
 
   // Request logging
   app.use(loggerMiddleware);
+
+  // Metrics middleware (captures response time + increments counter)
+  app.use(metricsMiddleware);
+
+  // Expose /metrics for Prometheus
+  app.use('/metrics', metricsRoutes);
 
   app.use('/health', healthRoutes);
 

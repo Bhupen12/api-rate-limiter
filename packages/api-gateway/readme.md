@@ -109,3 +109,13 @@ You can test IP filtering logic in **Postman** by setting headers:
 pm.request.headers.add({ key: 'X-Forwarded-For', value: '10.0.0.1, 127.0.0.1, 203.0.113.1' });
 pm.request.headers.add({ key: 'X-Real-IP', value: '169.254.1.1' });
 pm.request.headers.add({ key: 'cf-connecting-ip', value: 'fd12:3456:789a::1' });
+
+--
+
+## Start Redis
+
+docker start redis || docker run -d --name redis -p 6379:6379 redis:7-alpine
+
+## start prometheus docker compose
+
+docker compose -f docker-compose.prometheus.yml up -d
